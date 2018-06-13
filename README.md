@@ -50,3 +50,15 @@ To Do:
 - Add support to two players.
 - Add support to netplay.
 - Add support to render the graphics using Direct X and Open GL. For now the graphics are renderized using GDI only.
+
+Developers:
+
+- Sharivan: Programmer. Responsible to make the whole game logic, building the engine from the scratch.
+- Fanzack: Spriter. Responsible to make the Cactus sprite based on the original Creep, some power up sprites and bomberman sprite animation.
+
+References:
+
+- Most of graphics of this game was based on this tutorial https://gamedevelopment.tutsplus.com/tutorials/create-a-bomberman-inspired-game-in-construct-2-the-player-and-the-level--gamedev-8744 (or https://www.youtube.com/watch?v=aopm1jqvXMM) developed at Construct 2, but only graphics, the game logic was totaly developed from scratch in C#.
+- You can also find the sprites at http://enva.to/BombingChapSprites
+- FX musics are from original ones. Visit https://www.spriters-resource.com for find then searching by "bomberman".
+- Soundtrack musics are no copyright songs.
