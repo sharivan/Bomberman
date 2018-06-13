@@ -22,6 +22,7 @@ There is four type of bombs:
   - Remote Control Bomb: Can be detonated by player command.
   - Super Bomb: A red bomb with a explosion that penetrate soft blocks.
   - Super Remote Control Bomb: A combination of Super Bomb with Remote Control Bomb.
+
 Both bomb types also can be detonated when they are damaged by the explosion of other bomb, this can be used to make a chain detonation.
 The number of levels is infinite and there is no bosses.
 
