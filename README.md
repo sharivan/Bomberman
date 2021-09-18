@@ -7,7 +7,7 @@ Requirements:
 
 Building from the sources:
 
-This project was developed in C# and compiled under Visual Studio 2017 Enterpris Edition.
+This project was developed in C# and compiled under Visual Studio 2017 Enterprise Edition.
 There is no external dependencies for this project.
 
 How to play:
