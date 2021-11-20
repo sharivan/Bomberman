@@ -1,16 +1,16 @@
 # Bomberman
 Fan game based on the original Bomberman game from NES and SNES consoles.
 
-Requirements:
+**Requirements:**
 
 - .NET Framework version 4.6.1 or higher.
 
-Building from the sources:
+**Building from the sources:**
 
 This project was developed in C# and compiled under Visual Studio 2017 Enterprise Edition.
 There is no external dependencies for this project.
 
-How to play:
+**How to play:**
 
 This game was based on Bomberman games from NES and SNES consoles. The original game was developed by Hudson Soft in 1983 for the NES (Nintendo Entertainment System).
 The game consists in a stratrategic, maze-based game where you control the player moving in a bidimensional area.
@@ -44,21 +44,21 @@ There is 12 types of power ups in the game, items that grants special skills or 
   - Super Bomb: Turn the player bombs into Super Bombs.
   - Indestructible Armor: Make the player invincible by 15 seconds.
 
-To Do:
+**To Do:**
 
 - Add volume control to music and fx sounds.
 - Add support to two players.
 - Add support to netplay.
 - Add support to render the graphics using Direct X and Open GL. For now the graphics are renderized using GDI only.
 
-Developers:
+**Developers:**
 
-- Sharivan: Programmer. Responsible to make the whole game logic, building the engine from the scratch.
-- Fanzack: Spriter. Responsible to make the Cactus sprite based on the original Creep, some power up sprites and bomberman sprite animation.
+- [Sharivan](https://github.com/sharivan): Programmer. Responsible to make the whole game logic, building the engine from the scratch.
+- [Fanzack](https://github.com/danielhidalgojunior): Spriter. Responsible to make the Cactus sprite based on the original Creep, some power up sprites and bomberman sprite animation.
 
-References:
+**References:**
 
-- Most of graphics of this game was based on this tutorial https://gamedevelopment.tutsplus.com/tutorials/create-a-bomberman-inspired-game-in-construct-2-the-player-and-the-level--gamedev-8744 (or https://www.youtube.com/watch?v=aopm1jqvXMM) developed at Construct 2, but only graphics, the game logic was totaly developed from scratch in C#.
+- Most of graphics of this game was based on [this tutorial](https://gamedevelopment.tutsplus.com/tutorials/create-a-bomberman-inspired-game-in-construct-2-the-player-and-the-level--gamedev-8744) (or [this video](https://www.youtube.com/watch?v=aopm1jqvXMM)) developed at Construct 2, but only graphics, the game logic was totaly developed from scratch in C#.
 - You can also find the sprites at http://enva.to/BombingChapSprites
 - FX musics are from original ones. Visit https://www.spriters-resource.com for find then searching by "bomberman".
 - Soundtrack musics are no copyright songs.
