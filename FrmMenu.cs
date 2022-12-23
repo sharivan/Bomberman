@@ -28,14 +28,11 @@ namespace Bomberman
         private SoundCollection sounds;
         private bool gameStarted;
 
-        public FrmMenu()
-        {
-            InitializeComponent();
-        }
+        public FrmMenu() => InitializeComponent();
 
         private void LoadRankFromDisk()
         {
-            using (FileStream stream = new FileStream(@"rank.bin", FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
+            using (var stream = new FileStream(@"rank.bin", FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
             {
                 if (stream.Length == 0)
                     return;
@@ -43,7 +40,7 @@ namespace Bomberman
                 int count = stream.ReadByte();
                 for (int i = 0; i < count; i++)
                 {
-                    RankEntry entry = new RankEntry(stream);
+                    var entry = new RankEntry(stream);
                     rank.Add(entry);
                 }
             }
@@ -51,7 +48,7 @@ namespace Bomberman
 
         private void LoadKeyBindingFromDisk()
         {
-            using (FileStream stream = new FileStream(@"keys.bin", FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
+            using (var stream = new FileStream(@"keys.bin", FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
             {
                 if (stream.Length > 0)
                     keyBinding.ReadFromStream(stream);
@@ -112,6 +109,7 @@ namespace Bomberman
                 playNorm.Dispose();
                 playNorm = null;
             }
+
             if (playFocus != null)
             {
                 playFocus.Dispose();
@@ -123,6 +121,7 @@ namespace Bomberman
                 rankNorm.Dispose();
                 rankNorm = null;
             }
+
             if (rankFocus != null)
             {
                 rankFocus.Dispose();
@@ -134,6 +133,7 @@ namespace Bomberman
                 optionsNorm.Dispose();
                 optionsNorm = null;
             }
+
             if (optionsFocus != null)
             {
                 optionsFocus.Dispose();
@@ -143,10 +143,7 @@ namespace Bomberman
             sounds.Close();
         }
 
-        private void FrmMenu_Shown(object sender, EventArgs e)
-        {
-            sounds.Play("intro", true);
-        }
+        private void FrmMenu_Shown(object sender, EventArgs e) => sounds.Play("intro", true);
 
         private void LoadGame()
         {
@@ -157,8 +154,10 @@ namespace Bomberman
 
             Hide();
 
-            FrmBomberman frmBomberman = new FrmBomberman(this, keyBinding, sounds);
-            frmBomberman.StartPosition = FormStartPosition.CenterScreen;
+            var frmBomberman = new FrmBomberman(this, keyBinding, sounds)
+            {
+                StartPosition = FormStartPosition.CenterScreen
+            };
             frmBomberman.Show();
         }
 
@@ -168,10 +167,7 @@ namespace Bomberman
             picsingle.Image = playFocus;
         }
 
-        private void picsingle_MouseLeave(object sender, EventArgs e)
-        {
-            picsingle.Image = playNorm;
-        }
+        private void picsingle_MouseLeave(object sender, EventArgs e) => picsingle.Image = playNorm;
 
         private void picrank_MouseEnter(object sender, EventArgs e)
         {
@@ -179,10 +175,7 @@ namespace Bomberman
             picrank.Image = rankFocus;
         }
 
-        private void picrank_MouseLeave(object sender, EventArgs e)
-        {
-            picrank.Image = rankNorm;
-        }
+        private void picrank_MouseLeave(object sender, EventArgs e) => picrank.Image = rankNorm;
 
         private void picoptions_MouseEnter(object sender, EventArgs e)
         {
@@ -190,15 +183,9 @@ namespace Bomberman
             picoptions.Image = optionsFocus;
         }
 
-        private void picoptions_MouseLeave(object sender, EventArgs e)
-        {
-            picoptions.Image = optionsNorm;
-        }
+        private void picoptions_MouseLeave(object sender, EventArgs e) => picoptions.Image = optionsNorm;
 
-        private void picsingle_Click(object sender, EventArgs e)
-        {
-            LoadGame();
-        }
+        private void picsingle_Click(object sender, EventArgs e) => LoadGame();
 
         private void picrank_Click(object sender, EventArgs e)
         {
@@ -212,33 +199,31 @@ namespace Bomberman
 
             Hide();
 
-            FrmOptions frmop = new FrmOptions(this, keyBinding, sounds);
-            frmop.StartPosition = FormStartPosition.CenterScreen;
+            var frmop = new FrmOptions(this, keyBinding, sounds)
+            {
+                StartPosition = FormStartPosition.CenterScreen
+            };
             frmop.Show();
         }
 
-        private void OpenRank()
-        {
-            OpenRank(-1, -1);
-        }
+        private void OpenRank() => OpenRank(-1, -1);
 
         private void OpenRank(int level, int score)
         {
             Hide();
 
-            FrmRanking frmrank = new FrmRanking(this, rank, sounds, level, score);
-            frmrank.StartPosition = FormStartPosition.CenterScreen;
+            var frmrank = new FrmRanking(this, rank, sounds, level, score)
+            {
+                StartPosition = FormStartPosition.CenterScreen
+            };
             frmrank.Show();
         }
 
-        public void ReportScore(int level, int score)
-        {
-            OpenRank(level, score);
-        }
+        public void ReportScore(int level, int score) => OpenRank(level, score);
 
         private void FrmMenu_VisibleChanged(object sender, EventArgs e)
         {
-            if (this.Visible && gameStarted)
+            if (Visible && gameStarted)
             {
                 gameStarted = false;
                 sounds.Play("intro", true);

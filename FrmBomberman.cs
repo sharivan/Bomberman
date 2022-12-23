@@ -34,14 +34,8 @@ namespace Bomberman
         /// </summary>
         public class Animation : IDisposable
         {
-            private Entity entity; // Entidade que possui esta animação
-            private int index; // Índice desta animação
-            private ImageList imageList; // ImageList usado para gerar a animação (cada elemento do ImageList é um frame desta animação)
-            private float fps; // Quantidade de quadros por segundo utilizados para exibir a animação
-            private int initialFrame; // Quadro inicial da animação
             private bool visible; // Indica se a animação será visivel (se ela será renderizada ou não)
             private bool animating; // Indica se a animação será dinâmica ou estática
-            private bool loop; // Indica se a animação ocorrerá em looping
 
             private int currentFrame; // Quadro atual
             private int tick; // Quantidade de ticks desde a criação da animação
@@ -53,8 +47,8 @@ namespace Bomberman
 
             private Bitmap[] bitmaps; // Cache dos frames
             private Bitmap[] brightBitmaps; // Cache dos frames com brilho
-            private ColorMatrix cmxPic; // Matriz de cores usada para a geração do efeito de transparência, usado pelo efeito fading da entidade
-            private ImageAttributes iaPic; // Atributos de imagem usada para a geração do efeito de transparência
+            private readonly ColorMatrix cmxPic; // Matriz de cores usada para a geração do efeito de transparência, usado pelo efeito fading da entidade
+            private readonly ImageAttributes iaPic; // Atributos de imagem usada para a geração do efeito de transparência
 
             /// <summary>
             /// Cria uma nova animação.
@@ -85,14 +79,14 @@ namespace Bomberman
             /// <param name="loop">Especifica se a animação estará em looping ou não</param>
             public Animation(Entity entity, int index, ImageList imageList, float fps, int initialFrame = 0, bool startVisible = true, bool startOn = true, bool loop = true)
             {
-                this.entity = entity;
-                this.index = index;
-                this.imageList = imageList;
-                this.fps = fps;
-                this.initialFrame = initialFrame;
+                Entity = entity;
+                Index = index;
+                ImageList = imageList;
+                FPS = fps;
+                InitialFrame = initialFrame;
                 visible = startVisible;
                 animating = startOn;
-                this.loop = loop;
+                Loop = loop;
 
                 currentFrame = initialFrame; // Define o frame atual para o frame inicial
                 tick = 0; // Reseta o número de ticks
@@ -113,14 +107,14 @@ namespace Bomberman
             /// </summary>
             private void Precache()
             {
-                int count = imageList.Images.Count;
+                int count = ImageList.Images.Count;
                 bitmaps = new Bitmap[count];
                 brightBitmaps = new Bitmap[count];
 
                 for (int i = 0; i < count; i++)
                 {
-                    bitmaps[i] = PrecacheBitmap(imageList.Images[i], false);
-                    brightBitmaps[i] = PrecacheBitmap(imageList.Images[i], true);
+                    bitmaps[i] = PrecacheBitmap(ImageList.Images[i], false);
+                    brightBitmaps[i] = PrecacheBitmap(ImageList.Images[i], true);
                 }
             }
 
@@ -132,13 +126,13 @@ namespace Bomberman
             /// <returns>Imagem no formato bitmap</returns>
             private Bitmap PrecacheBitmap(Image image, bool bright)
             {
-                Box2D drawBox = entity.DrawBox;
-                Rectangle rect = new Rectangle(0, 0, (int) drawBox.Width, (int) drawBox.Height);
-                Bitmap bitmap = new Bitmap(rect.Width, rect.Height);
-                Graphics g = Graphics.FromImage(bitmap);
+                Box2D drawBox = Entity.DrawBox;
+                var rect = new Rectangle(0, 0, (int) drawBox.Width, (int) drawBox.Height);
+                var bitmap = new Bitmap(rect.Width, rect.Height);
+                var g = Graphics.FromImage(bitmap);
 
-                if (entity.Tiled) // Se a propriedade Tiles da entidade for verdadeira, desenha a animação lado a lado de forma a preencher toda a imagem
-                    using (TextureBrush brush = new TextureBrush(image, WrapMode.Tile))
+                if (Entity.Tiled) // Se a propriedade Tiles da entidade for verdadeira, desenha a animação lado a lado de forma a preencher toda a imagem
+                    using (var brush = new TextureBrush(image, WrapMode.Tile))
                     {
                         g.FillRectangle(brush, rect);
                     }
@@ -152,14 +146,14 @@ namespace Bomberman
 
                         float[][] ptsArray =
                         {
-                        new float[] {contrast, 0, 0, 0, 0}, // scale red
-                        new float[] {0, contrast, 0, 0, 0}, // scale green
-                        new float[] {0, 0, contrast, 0, 0}, // scale blue
-                        new float[] {0, 0, 0, 1, 0}, // scale alpha
-                        new float[] {brightness, brightness, brightness, 0, 1}
-                    };
+                            new float[] {contrast, 0, 0, 0, 0}, // scale red
+                            new float[] {0, contrast, 0, 0, 0}, // scale green
+                            new float[] {0, 0, contrast, 0, 0}, // scale blue
+                            new float[] {0, 0, 0, 1, 0}, // scale alpha
+                            new float[] {brightness, brightness, brightness, 0, 1}
+                        };
 
-                        using (ImageAttributes imageAttributes = new ImageAttributes())
+                        using (var imageAttributes = new ImageAttributes())
                         {
                             imageAttributes.ClearColorMatrix();
                             imageAttributes.SetColorMatrix(new ColorMatrix(ptsArray), ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
@@ -182,8 +176,8 @@ namespace Bomberman
             {
                 animationEndFired = false;
                 animating = true;
-                nextTick = tick + (int) (TICKRATE / fps); // calcula o próximo tick no qual deverá ocorrer a troca de quadros
-                entity.Engine.Repaint(entity); // Notifica o engine que a entidade deverá ser redesenhada na tela
+                nextTick = tick + (int) (TICKRATE / FPS); // calcula o próximo tick no qual deverá ocorrer a troca de quadros
+                Entity.Engine.Repaint(Entity); // Notifica o engine que a entidade deverá ser redesenhada na tela
             }
 
             /// <summary>
@@ -201,7 +195,7 @@ namespace Bomberman
             public void Stop()
             {
                 animating = false;
-                entity.Engine.Repaint(entity);
+                Entity.Engine.Repaint(Entity);
             }
 
             /// <summary>
@@ -209,8 +203,8 @@ namespace Bomberman
             /// </summary>
             public void Reset()
             {
-                currentFrame = initialFrame;
-                entity.Engine.Repaint(entity);
+                currentFrame = InitialFrame;
+                Entity.Engine.Repaint(Entity);
             }
 
             /// <summary>
@@ -233,10 +227,7 @@ namespace Bomberman
             /// </summary>
             public Entity Entity
             {
-                get
-                {
-                    return entity;
-                }
+                get;
             }
 
             /// <summary>
@@ -244,10 +235,7 @@ namespace Bomberman
             /// </summary>
             public int Index
             {
-                get
-                {
-                    return index;
-                }
+                get;
             }
 
             /// <summary>
@@ -255,10 +243,7 @@ namespace Bomberman
             /// </summary>
             public ImageList ImageList
             {
-                get
-                {
-                    return imageList;
-                }
+                get;
             }
 
             /// <summary>
@@ -266,14 +251,8 @@ namespace Bomberman
             /// </summary>
             public float FPS
             {
-                get
-                {
-                    return fps;
-                }
-                set
-                {
-                    fps = value;
-                }
+                get;
+                set;
             }
 
             /// <summary>
@@ -281,14 +260,8 @@ namespace Bomberman
             /// </summary>
             public int InitialFrame
             {
-                get
-                {
-                    return initialFrame;
-                }
-                set
-                {
-                    initialFrame = value;
-                }
+                get;
+                set;
             }
 
             /// <summary>
@@ -296,19 +269,13 @@ namespace Bomberman
             /// </summary>
             public int CurrentFrame
             {
-                get
-                {
-                    return currentFrame;
-                }
+                get => currentFrame;
                 set
                 {
-                    if (value >= imageList.Images.Count)
-                        currentFrame = imageList.Images.Count - 1;
-                    else
-                        currentFrame = value;
+                    currentFrame = value >= ImageList.Images.Count ? ImageList.Images.Count - 1 : value;
 
                     animationEndFired = false;
-                    entity.Engine.Repaint(entity);
+                    Entity.Engine.Repaint(Entity);
                 }
             }
 
@@ -317,14 +284,11 @@ namespace Bomberman
             /// </summary>
             public bool Visible
             {
-                get
-                {
-                    return visible;
-                }
+                get => visible;
                 set
                 {
                     visible = value;
-                    entity.Engine.Repaint(entity);
+                    Entity.Engine.Repaint(Entity);
                 }
             }
 
@@ -333,10 +297,7 @@ namespace Bomberman
             /// </summary>
             public bool Animating
             {
-                get
-                {
-                    return animating;
-                }
+                get => animating;
                 set
                 {
                     if (value && !animating)
@@ -351,14 +312,8 @@ namespace Bomberman
             /// </summary>
             public bool Loop
             {
-                get
-                {
-                    return loop;
-                }
-                set
-                {
-                    loop = value;
-                }
+                get;
+                set;
             }
 
             /// <summary>
@@ -367,16 +322,13 @@ namespace Bomberman
             /// </summary>
             public bool Flashing
             {
-                get
-                {
-                    return flashing;
-                }
+                get => flashing;
                 set
                 {
                     flashing = value;
 
                     if (visible)
-                        entity.Engine.Repaint(entity);
+                        Entity.Engine.Repaint(Entity);
                 }
             }
 
@@ -396,7 +348,7 @@ namespace Bomberman
                         nextBrightTick = tick + BRIGHT_TICK;
 
                         if (visible)
-                            entity.Engine.Repaint(entity);
+                            Entity.Engine.Repaint(Entity);
                     }
                 }
                 else if (bright)
@@ -404,39 +356,39 @@ namespace Bomberman
                     bright = false;
 
                     if (visible)
-                        entity.Engine.Repaint(entity);
+                        Entity.Engine.Repaint(Entity);
                 }
 
                 // Se a animação não está em execução ou não ouver pelo menos dois quadros na animação então não é necessário computar o próximo quadro da animação
-                if (!animating || imageList.Images.Count <= 1)
+                if (!animating || ImageList.Images.Count <= 1)
                     return;
 
                 // Verifica se está na hora de avançar o quadro da animação.
                 if (tick >= nextTick)
                 {
-                    if (currentFrame >= imageList.Images.Count - 1) // Se chegamos no final da animação
+                    if (currentFrame >= ImageList.Images.Count - 1) // Se chegamos no final da animação
                     {
                         if (!animationEndFired)
                         {
                             animationEndFired = true;
-                            entity.OnAnimationEnd(this);
+                            Entity.OnAnimationEnd(this);
                         }
 
-                        if (loop) // e se a animação está em looping, então o próximo frame deverá ser o primeiro frame da animação (não o frame inicial, definido por initialFrame)
+                        if (Loop) // e se a animação está em looping, então o próximo frame deverá ser o primeiro frame da animação (não o frame inicial, definido por initialFrame)
                         {
                             currentFrame = 0;
                             animationEndFired = false;
                         }
-                        else if (currentFrame > imageList.Images.Count - 1) // Por via das dúvidas, verifique se o frame atual não passou dos limites
-                            currentFrame = imageList.Images.Count - 1;
+                        else if (currentFrame > ImageList.Images.Count - 1) // Por via das dúvidas, verifique se o frame atual não passou dos limites
+                            currentFrame = ImageList.Images.Count - 1;
                     }
                     else // Senão, avança para o próximo frame
                         currentFrame++;
 
-                    nextTick = tick + (int) (TICKRATE / fps); // e computa quando deverá ocorrer o próximo avanço de frame
+                    nextTick = tick + (int) (TICKRATE / FPS); // e computa quando deverá ocorrer o próximo avanço de frame
 
                     if (visible) // Se a animação estiver visível, notifica o engine que a entidade possuidora dela deverá ser redesenhado
-                        entity.Engine.Repaint(entity);
+                        Entity.Engine.Repaint(Entity);
                 }
             }
 
@@ -447,14 +399,14 @@ namespace Bomberman
             public void Paint(Graphics g)
             {
                 // Se ñão estiver visível ou não ouver frames então não precisa desenhar nada
-                if (!visible || imageList.Images.Count == 0)
+                if (!visible || ImageList.Images.Count == 0)
                     return;
 
-                Box2D drawBox = entity.DrawBox; // Obtém o retângulo de desenho da entidade
+                Box2D drawBox = Entity.DrawBox; // Obtém o retângulo de desenho da entidade
                 Bitmap bitmap = bright ? brightBitmaps[currentFrame] : bitmaps[currentFrame]; // Obtém o frame a ser desenhado a partir do cache
-                cmxPic.Matrix33 = entity.Opacity; // Atualiza a opacidade da imagem
+                cmxPic.Matrix33 = Entity.Opacity; // Atualiza a opacidade da imagem
                 iaPic.SetColorMatrix(cmxPic, ColorMatrixFlag.Default, ColorAdjustType.Bitmap); // Define a matriz de cores da imagem
-                g.DrawImage(bitmap, entity.Engine.TransformBox(drawBox), 0, 0, bitmap.Width, bitmap.Height, GraphicsUnit.Pixel, iaPic); // Desenha o frame
+                g.DrawImage(bitmap, Entity.Engine.TransformBox(drawBox), 0, 0, bitmap.Width, bitmap.Height, GraphicsUnit.Pixel, iaPic); // Desenha o frame
             }
         }
 
@@ -480,7 +432,7 @@ namespace Bomberman
             protected bool disposed; // Indica se os recursos associados a esta entidade foram liberados
             private int drawCount; // Armazena a quantidade de pinturas feita pela entidade desde sua criação. Usado somente para depuração.
 
-            private ImageList[] imageLists; // Array de lista de imagens a ser usada na animação desta entidade
+            private readonly ImageList[] imageLists; // Array de lista de imagens a ser usada na animação desta entidade
 
             /// <summary>
             /// Cria uma nova entidade
@@ -547,10 +499,7 @@ namespace Bomberman
             {
             }
 
-            public override string ToString()
-            {
-                return name + " [" + drawBox + "]";
-            }
+            public override string ToString() => name + " [" + drawBox + "]";
 
             /// <summary>
             /// Aplica um efeito de fade in
@@ -608,56 +557,29 @@ namespace Bomberman
             /// <summary>
             /// Engine
             /// </summary>
-            public FrmBomberman Engine
-            {
-                get
-                {
-                    return engine;
-                }
-            }
+            public FrmBomberman Engine => engine;
 
             /// <summary>
             /// Nome da entidade
             /// </summary>
-            public string Name
-            {
-                get
-                {
-                    return name;
-                }
-            }
+            public string Name => name;
 
             /// <summary>
             /// Retângulo de desenho
             /// </summary>
-            public Box2D DrawBox
-            {
-                get
-                {
-                    return drawBox;
-                }
-            }
+            public Box2D DrawBox => drawBox;
 
             /// <summary>
             /// Retângulo de colisão
             /// </summary>
-            public Box2D CollisionBox
-            {
-                get
-                {
-                    return collisionBox;
-                }
-            }
+            public Box2D CollisionBox => collisionBox;
 
             /// <summary>
             /// Especifica se o desenho da entidade será feito lado a lado preenchendo o retângulo de desenho
             /// </summary>
             public bool Tiled
             {
-                get
-                {
-                    return tiled;
-                }
+                get => tiled;
                 set
                 {
                     tiled = value;
@@ -670,10 +592,7 @@ namespace Bomberman
             /// </summary>
             public float Opacity
             {
-                get
-                {
-                    return opacity;
-                }
+                get => opacity;
                 set
                 {
                     opacity = value;
@@ -684,23 +603,14 @@ namespace Bomberman
             /// <summary>
             /// Vetor de deslocamento da entidade desde o último tick
             /// </summary>
-            public Vector2D LastDelta
-            {
-                get
-                {
-                    return lastDelta;
-                }
-            }
+            public Vector2D LastDelta => lastDelta;
 
             /// <summary>
             /// Animação correspondente a um determinado índice
             /// </summary>
             /// <param name="index">Índice da animação</param>
             /// <returns>Animação de índice index</returns>
-            public Animation GetAnimation(int index)
-            {
-                return animations[index];
-            }
+            public Animation GetAnimation(int index) => animations[index];
 
             /// <summary>
             /// Evento interno que ocorrerá sempre que o efeito de fade in for completo
@@ -762,7 +672,7 @@ namespace Bomberman
 
                 if (DEBUG_SHOW_ENTITY_DRAW_COUNT)
                 {
-                    Font font = new Font("Arial", 16 * engine.drawScale);
+                    var font = new Font("Arial", 16 * engine.drawScale);
                     using (Brush brush = new SolidBrush(Color.Yellow))
                     {
                         Vector2D mins = drawBox.Origin + drawBox.Mins;
@@ -784,12 +694,12 @@ namespace Bomberman
 
             public virtual void Read(BinaryReader reader)
             {
-                
+
             }
 
             public virtual void Write(BinaryWriter writer)
             {
-                
+
             }
         }
 
@@ -808,18 +718,16 @@ namespace Bomberman
             /// <typeparam name="U">Tipo da entidade (deve descender da classe Entity)</typeparam>
             private class PartitionCell<U> where U : Entity
             {
-                Partition<U> partition; // Partição a qual esta célula pertence
-                Box2D box; // Retângulo que delimita a célula
-                List<U> values; // Lista de entides que possuem intersecção não vazia com esta célula
+                readonly Box2D box; // Retângulo que delimita a célula
+                readonly List<U> values; // Lista de entides que possuem intersecção não vazia com esta célula
 
                 /// <summary>
                 /// Cria uma nova célula para a partição
                 /// </summary>
                 /// <param name="partition">Partição a qual esta célula pertence</param>
                 /// <param name="box">Retângulo que delimita esta célula</param>
-                public PartitionCell(Partition<U> partition, Box2D box)
+                public PartitionCell(Box2D box)
                 {
-                    this.partition = partition;
                     this.box = box;
 
                     values = new List<U>();
@@ -871,38 +779,26 @@ namespace Bomberman
                 /// Remove uma entidade desta célula
                 /// </summary>
                 /// <param name="value">Entidade a ser removida</param>
-                public void Remove(U value)
-                {
-                    values.Remove(value);
-                }
+                public void Remove(U value) => values.Remove(value);
 
                 /// <summary>
                 /// Limpa a lista de entidades desta célula
                 /// </summary>
-                public void Clear()
-                {
-                    values.Clear();
-                }
+                public void Clear() => values.Clear();
 
                 /// <summary>
                 /// Obtém a quantidade de entidades que possuem intersecção não vazia com esta célula
                 /// </summary>
-                public int Count
-                {
-                    get
-                    {
-                        return values.Count;
-                    }
-                }
+                public int Count => values.Count;
             }
 
-            private Box2D box; // Retângulo que define esta partição
-            private int rows; // Número de linhas da subdivisão
-            private int cols; // Número de colunas da subdivisão
+            private readonly Box2D box; // Retângulo que define esta partição
+            private readonly int rows; // Número de linhas da subdivisão
+            private readonly int cols; // Número de colunas da subdivisão
 
-            private PartitionCell<T>[,] cells; // Matriz da partição
-            private float cellWidth; // Largura de cada subdivisão
-            private float cellHeight; // Altura de cada subdivisão
+            private readonly PartitionCell<T>[,] cells; // Matriz da partição
+            private readonly float cellWidth; // Largura de cada subdivisão
+            private readonly float cellHeight; // Altura de cada subdivisão
 
             /// <summary>
             /// Cria uma nova partição
@@ -993,14 +889,14 @@ namespace Bomberman
                 for (int i = startCol; i <= endCol; i++)
                     for (int j = startRow; j <= endRow; j++)
                     {
-                        Box2D box1 = new Box2D(new Vector2D(mins.X + cellWidth * i, mins.Y + cellHeight * j), Vector2D.NULL_VECTOR, new Vector2D(cellWidth, cellHeight));
+                        var box1 = new Box2D(new Vector2D(mins.X + cellWidth * i, mins.Y + cellHeight * j), Vector2D.NULL_VECTOR, new Vector2D(cellWidth, cellHeight));
                         Box2D intersection = box1 & box; // Calcula a intesecção
 
                         if (intersection.Area() == 0) // Se a intesecção for vazia, não precisa adicionar a entidade a célula
                             continue;
 
                         if (cells[i, j] == null) // Verifica se a célula já foi criada antes, caso não tenha sido ainda então a cria
-                            cells[i, j] = new PartitionCell<T>(this, box1);
+                            cells[i, j] = new PartitionCell<T>(box1);
 
                         cells[i, j].Insert(item); // Insere a entidade na célula
                     }
@@ -1013,7 +909,7 @@ namespace Bomberman
             /// <returns></returns>
             public List<T> Query(Box2D box)
             {
-                List<T> result = new List<T>();
+                var result = new List<T>();
 
                 // Calcula os máximos e mínimos absulutos do retângulo que delimita esta partição
                 Vector2D origin = this.box.Origin;
@@ -1048,8 +944,7 @@ namespace Bomberman
                 // Varre todas as possíveis células que poderão ter intersecção não vazia com o retângulo dado
                 for (int i = startCol; i <= endCol; i++)
                     for (int j = startRow; j <= endRow; j++)
-                        if (cells[i, j] != null) // Para cada célula que já foi previamente criada
-                            cells[i, j].Query(box, result); // consulta quais entidades possuem intersecção não vazia com o retângulo dado
+                        cells[i, j]?.Query(box, result); // consulta quais entidades possuem intersecção não vazia com o retângulo dado
 
                 return result;
             }
@@ -1110,7 +1005,7 @@ namespace Bomberman
                         else
                         {
                             // Senão...
-                            Box2D box1 = new Box2D(new Vector2D(mins.X + cellWidth * i, mins.Y + cellHeight * j), Vector2D.NULL_VECTOR, new Vector2D(cellWidth, cellHeight));
+                            var box1 = new Box2D(new Vector2D(mins.X + cellWidth * i, mins.Y + cellHeight * j), Vector2D.NULL_VECTOR, new Vector2D(cellWidth, cellHeight));
                             Box2D intersection = box1 & box; // Calcula a intersecção desta célula com o retângulo de desenho atual da entidade
 
                             if (intersection.Area() == 0) // Se ela for vazia, não há nada o que fazer nesta célula
@@ -1118,7 +1013,7 @@ namespace Bomberman
 
                             // Senão...
                             if (cells[i, j] == null) // Verifica se a célula é nula
-                                cells[i, j] = new PartitionCell<T>(this, box1); // Se for, cria uma nova célula nesta posição
+                                cells[i, j] = new PartitionCell<T>(box1); // Se for, cria uma nova célula nesta posição
 
                             cells[i, j].Insert(item); // e finalmente insere a entidade nesta célula
                         }
@@ -1198,10 +1093,7 @@ namespace Bomberman
             /// <param name="imageLists">Lista de imagens contendo todas as skins do bloco</param>
             /// <param name="skin">Número da skin a ser usada pelo bloco</param>
             public HardBlock(FrmBomberman engine, string name, Box2D box, ImageList[] imageLists, int skin)
-            : base(engine, name, box, box, imageLists, true)
-            {
-                this.skin = skin;
-            }
+            : base(engine, name, box, box, imageLists, true) => this.skin = skin;
 
             protected override void OnCreateAnimation(int animationIndex, ref ImageList imageList, ref float fps, ref int initialFrame, ref bool startVisible, ref bool startOn, ref bool loop)
             {
@@ -1216,10 +1108,7 @@ namespace Bomberman
             /// </summary>
             public int Skin
             {
-                get
-                {
-                    return skin;
-                }
+                get => skin;
                 set
                 {
                     skin = value;
@@ -1240,9 +1129,6 @@ namespace Bomberman
         /// </summary>
         public abstract class Sprite : Entity
         {
-            private int index; // Posição deste sprite na lista de sprites do engine
-            private Box2D hitBox; // Retângulo que delimita a área de dano deste sprite
-
             protected Vector2D vel; // Velocidade
             protected bool moving; // Indica se o sprite está continuou se movendo desde a última iteração física com os demais elementos do jogo
             protected bool markedToRemove; // Indica se o sprite foi marcado para remoção, tal remoção só será realizada após ser executada todas as interações físicas entre os elementos do jogo.
@@ -1296,20 +1182,15 @@ namespace Bomberman
             /// <param name="imageLists">Array de lista de imagens que serão usadas na animação do sprite</param>
             /// <param name="tiled">Indicará se o desenho do sprite será feito preenchendo-se lado a lado o retângulo de desenho</param>
             public Sprite(FrmBomberman engine, string name, Box2D drawBox, Box2D hitBox, Box2D collisionBox, ImageList[] imageLists, bool tiled = false)
-            : base(engine, name, drawBox, collisionBox, imageLists, tiled)
-            {
-                this.hitBox = hitBox;
-            }
+            : base(engine, name, drawBox, collisionBox, imageLists, tiled) => this.HitBox = hitBox;
 
             /// <summary>
             /// Posição deste sprite na lista de sprites do engine
             /// </summary>
             public int Index
             {
-                get
-                {
-                    return index;
-                }
+                get;
+                private set;
             }
 
             /// <summary>
@@ -1317,91 +1198,50 @@ namespace Bomberman
             /// </summary>
             public Box2D HitBox
             {
-                get
-                {
-                    return hitBox;
-                }
+                get;
+                private set;
             }
 
             /// <summary>
             /// Indica se este sprite é estático
             /// </summary>
-            public bool Static
-            {
-                get
-                {
-                    return isStatic;
-                }
-            }
+            public bool Static => isStatic;
 
             /// <summary>
             /// Indica se este sprite pode atravessar sprites estáticos
             /// </summary>
             public bool PassStatics
             {
-                get
-                {
-                    return passStatics;
-                }
-                set
-                {
-                    passStatics = value;
-                }
+                get => passStatics;
+                set => passStatics = value;
             }
 
             /// <summary>
             /// Indica se este sprite ainda está se movendo desde a última interação física com os demais sprites do jogo
             /// </summary>
-            public bool Moving
-            {
-                get
-                {
-                    return moving;
-                }
-            }
+            public bool Moving => moving;
 
             /// <summary>
             /// Indica se este sprite foi quebrado
             /// </summary>
-            public bool Broke
-            {
-                get
-                {
-                    return broke;
-                }
-            }
+            public bool Broke => broke;
 
             /// <summary>
             /// Indica se este sprite foi marcado para remoção. Tal remoção só ocorrerá depois de serem processadas todas as interações físicas entre os elementos do jogo.
             /// </summary>
-            public bool MarkedToRemove
-            {
-                get
-                {
-                    return markedToRemove;
-                }
-            }
+            public bool MarkedToRemove => markedToRemove;
 
             /// <summary>
             /// Indica se este sprite está no modo de invencibilidade
             /// </summary>
-            public bool Invincible
-            {
-                get
-                {
-                    return invincible;
-                }
-            }
+            public bool Invincible => invincible;
 
             /// <summary>
             /// HP deste sprite
             /// </summary>
             public float Health
             {
-                get
-                {
-                    return health;
-                }
+                get => health;
                 set
                 {
                     health = value;
@@ -1417,14 +1257,8 @@ namespace Bomberman
             /// </summary>
             public float MaxDamage
             {
-                get
-                {
-                    return maxDamage;
-                }
-                set
-                {
-                    maxDamage = value;
-                }
+                get => maxDamage;
+                set => maxDamage = value;
             }
 
             /// <summary>
@@ -1432,23 +1266,14 @@ namespace Bomberman
             /// </summary>
             public Vector2D Velocity
             {
-                get
-                {
-                    return vel;
-                }
-                set
-                {
-                    vel = value;
-                }
+                get => vel;
+                set => vel = value;
             }
 
             /// <summary>
             /// Mata o sprite (sem quebra-la).
             /// </summary>
-            public void Kill(Bomberman killer)
-            {
-                OnDeath(killer);
-            }
+            public void Kill(Bomberman killer) => OnDeath(killer);
 
             /// <summary>
             /// Libera todos os recursos associados a este sprite
@@ -1464,10 +1289,7 @@ namespace Bomberman
             /// <summary>
             /// Evento interno que é lançado sempre que o sprite for morto
             /// </summary>
-            protected virtual void OnDeath(Bomberman killer)
-            {
-                Dispose(); // Por padrão ele apenas dispões ele da memória, liberando todos os recursos associados a ele
-            }
+            protected virtual void OnDeath(Bomberman killer) => Dispose(); // Por padrão ele apenas dispões ele da memória, liberando todos os recursos associados a ele
 
             /// <summary>
             /// Teleporta o sprite para uma determinada posição
@@ -1479,7 +1301,7 @@ namespace Bomberman
                                                             // Atualiza a posição de todos os retângulos
                 drawBox += delta; // de desenho
                 collisionBox += delta; // de colisão
-                hitBox += delta; // e de dano
+                HitBox += delta; // e de dano
                 lastDelta += delta; // E atualiza também o vetor de deslocamento absoluto (que indica o quanto ele se deslocou desde o último tick do engine)
 
                 // Atualiza as partições do engine
@@ -1524,10 +1346,7 @@ namespace Bomberman
             /// <param name="region">Retângulo que delimita a área de dano a ser infringida neste sprite pelo atacante</param>
             /// <param name="damage">Quandidade de dano a ser causada pelo atacante. É passado por referência e portanto qualquer alteração deste parâmetro poderá mudar o comportamento do dano sofrido por este sprite.</param>
             /// <returns>true se o dano deverá ser processado, false se o dano deverá ser cancelado</returns>
-            protected virtual bool OnTakeDamage(Sprite attacker, Box2D region, ref float damage)
-            {
-                return true;
-            }
+            protected virtual bool OnTakeDamage(Sprite attacker, Box2D region, ref float damage) => true;
 
             /// <summary>
             /// Evento interno que será chamado sempre que o sprite sofreu um dano.
@@ -1553,10 +1372,7 @@ namespace Bomberman
             /// </summary>
             /// <param name="victim">Vítima que sofrerá o dano/param>
             /// <param name="damage">Quantidade de dano a ser causada na vítima</param>
-            public void Hurt(Sprite victim, Bomberman attacker, float damage)
-            {
-                Hurt(victim, attacker, collisionBox, damage);
-            }
+            public void Hurt(Sprite victim, Bomberman attacker, float damage) => Hurt(victim, attacker, collisionBox, damage);
 
             /// <summary>
             /// Causa um dano numa determinada região de uma vítima
@@ -1570,7 +1386,7 @@ namespace Bomberman
                 if (victim.broke || victim.markedToRemove || health <= 0)
                     return;
 
-                Box2D intersection = victim.hitBox & region; // Calcula a intesecção com a área de dano da vítima e a região dada
+                Box2D intersection = victim.HitBox & region; // Calcula a intesecção com a área de dano da vítima e a região dada
 
                 if (intersection.Area() == 0) // Se a intersecção for vazia, não aplica o dano
                     return;
@@ -1617,10 +1433,7 @@ namespace Bomberman
             /// Evento que será chamado sempre que este sprite for adicionado na lista de sprites do engine
             /// </summary>
             /// <param name="index">Posição deste sprite na lista de sprites do engine</param>
-            public void OnAdded(int index)
-            {
-                this.index = index;
-            }
+            public void OnAdded(int index) => Index = index;
 
             /// <summary>
             /// Evento interno que será chamdo sempre que for checada a colisão deste sprite com outro sprite.
@@ -1628,10 +1441,7 @@ namespace Bomberman
             /// </summary>
             /// <param name="sprite">Sprite a ser verificado</param>
             /// <returns>true se os dois sprites deverão colidor, false caso contrário. Como padrão este método sempre retornará false indicando que os dois sprites irão colidir</returns>
-            protected virtual bool ShouldCollide(Sprite sprite)
-            {
-                return false;
-            }
+            protected virtual bool ShouldCollide(Sprite sprite) => false;
 
             /// <summary>
             /// Verifica a colisão deste sprite com os blocos (ou também com qualquer outro sprite marcada como estático)
@@ -1658,7 +1468,7 @@ namespace Bomberman
                         Box2D intersection = newBox & blok.CollisionBox;
 
                         if (intersection.Area() != 0) // Apenas deverá ser processada a colisão se anteriormente o bloco não estava colidindo com este sprite
-                            union = union | intersection;
+                            union |= intersection;
                     }
 
                     // Se este sprite não atravessa sprites estáticos como por exemplo os blocos quebráveis (soft blocks), verifica a colisão com todos os sprites marcados como estáticos
@@ -1677,7 +1487,7 @@ namespace Bomberman
                             Box2D intersection = newBox & sprite.CollisionBox;
 
                             if (intersection.Area() != 0) // Apenas deverá ser processada a colisão se anteriormente o outro sprite não estava colidindo com este sprite
-                                union = union | intersection;
+                                union |= intersection;
                         }
 
                     // Se ouve colisão, teste uma nova posição ao longo da esquina
@@ -1771,7 +1581,7 @@ namespace Bomberman
                 }
 
                 Vector2D delta = !isStatic && !vel.IsNull ? CheckCollisionWithStatics() : Vector2D.NULL_VECTOR; // Verifica a colisão deste sprite com os blocos do jogo e outros sprites marcados como estáticos, retornando o vetor de deslocamento
-                List<Sprite> touching = new List<Sprite>();
+                var touching = new List<Sprite>();
                 delta = CheckCollisionWithSprites(delta, touching); // Verifica a colisão deste sprite com os sprites do jogo, verificando também quais sprites estão tocando este sprite e retornando o vetor de deslocamento
                 lastDelta = delta; // Atualiza o vetor de deslocamento global deste sprite
 
@@ -1780,7 +1590,7 @@ namespace Bomberman
                     // Translata todos os retângulos deste sprite com base no novo deslocamento
                     collisionBox += delta; // o de colisão
                     drawBox += delta; // de desenho
-                    hitBox += delta; // e de dano
+                    HitBox += delta; // e de dano
 
                     // Atualiza a partição do engine
                     if (isStatic)
@@ -1833,10 +1643,7 @@ namespace Bomberman
             /// </summary>
             /// <param name="sprite">Sprite a ser verificado</param>
             /// <returns>true se a colisão deverá ocorrer, false caso contrário</returns>
-            protected bool CollisionCheck(Sprite sprite)
-            {
-                return (ShouldCollide(sprite) || sprite.ShouldCollide(this));
-            }
+            protected bool CollisionCheck(Sprite sprite) => ShouldCollide(sprite) || sprite.ShouldCollide(this);
 
             /// <summary>
             /// Evento que ocorre uma vez a cada frame (tick) do engine.
@@ -1915,10 +1722,7 @@ namespace Bomberman
             /// Sobreponha este evento em suas casses descendentes se desejar controlar o comportamento deste sprite a cada frame do jogo.
             /// </summary>
             /// <returns>true se as interações físicas deverão ser processadas, false caso contrário</returns>
-            protected virtual bool PreThink()
-            {
-                return true;
-            }
+            protected virtual bool PreThink() => true;
 
             /// <summary>
             /// Evento interno que é chamado após as interações físicas deste sprite com os demais elementos do jogo forem feitas e sua posição e velocidade já tiver sido recalculadas.
@@ -1941,10 +1745,7 @@ namespace Bomberman
             /// Sobreponha este evento se quiser controlar o comportamento da quebra antes que a mesma ocorra, ou mesmo cancela-la.
             /// </summary>
             /// <returns>true se a quebra deverá ser feita, false caso contrário</returns>
-            protected virtual bool OnBreak(Bomberman breaker)
-            {
-                return true;
-            }
+            protected virtual bool OnBreak(Bomberman breaker) => true;
 
             /// <summary>
             /// Evento interno que é chamado após ocorrer a quebra deste sprite
@@ -2173,23 +1974,14 @@ namespace Bomberman
             /// <summary>
             /// Como em um sprite direcional somente pode existir uma animação visível por vez, esta propriedade diz qual é a animação vísivel no momento.
             /// </summary>
-            protected Animation CurrentAnimation
-            {
-                get
-                {
-                    return GetAnimation(currentAnimationIndex);
-                }
-            }
+            protected Animation CurrentAnimation => GetAnimation(currentAnimationIndex);
 
             /// <summary>
             /// Como em um sprite direcional somente pode existir uma animação visível por vez, esta propriedade diz qual é o índice (posição dela na lista de animações deste sprite) da animação vísivel no momento.
             /// </summary>
             protected int CurrentAnimationIndex
             {
-                get
-                {
-                    return currentAnimationIndex;
-                }
+                get => currentAnimationIndex;
                 set
                 {
                     Animation animation = CurrentAnimation;
@@ -2226,10 +2018,7 @@ namespace Bomberman
             /// </summary>
             public Direction Direction
             {
-                get
-                {
-                    return direction;
-                }
+                get => direction;
                 set
                 {
                     if (death) // Se ele já está morto não há nada o que se fazer aqui.
@@ -2247,23 +2036,14 @@ namespace Bomberman
             /// <summary>
             /// Obtém o vetor direção deste sprite.
             /// </summary>
-            public Vector2D DirectionVector
-            {
-                get
-                {
-                    return directionVector;
-                }
-            }
+            public Vector2D DirectionVector => directionVector;
 
             /// <summary>
             /// Velocidade escalar deste sprite.
             /// </summary>
             public float Speed
             {
-                get
-                {
-                    return speed;
-                }
+                get => speed;
                 set
                 {
                     speed = value;
@@ -2279,10 +2059,7 @@ namespace Bomberman
             /// Indica se este sprite está ou não morto.
             /// </summary>
             /// <returns>true se estiver morto, false caso contrário</returns>
-            public bool IsDeath()
-            {
-                return death;
-            }
+            public bool IsDeath() => death;
 
             /// <summary>
             /// Define uma direção aleatória para este sprite e inicia o movimento.
@@ -2290,13 +2067,13 @@ namespace Bomberman
             public void RandomMove()
             {
                 // Enumera todas as direções possíveis que este sprite poderá seguir.
-                List<Direction> directions = new List<Direction>();
+                var directions = new List<Direction>();
 
                 for (int i = 0; i < 4; i++)
                 {
                     // Para saber se o sprite poderá seguir em uma direção, usa-se o mesmo algoritmo de teste de colisão que é usado pelo sprite que é usado para interagir fisicamente com outros elementos do jogo.
                     Direction direction = IntToDirection(1 << i);
-                    Box2D box = this.collisionBox + GetVectorDir(direction) * speed * TICK;
+                    Box2D box = collisionBox + GetVectorDir(direction) * speed * TICK;
                     List<Entity> entities = Engine.GetOverlappedEntities(box, this, true);
                     bool cont = false;
 
@@ -2308,10 +2085,8 @@ namespace Bomberman
                             break;
                         }
 
-                        if (entity is Sprite)
+                        if (entity is Sprite sprite)
                         {
-                            Sprite sprite = (Sprite) entity;
-
                             if (sprite.Static || CollisionCheck(sprite))
                             {
                                 cont = true;
@@ -2360,18 +2135,13 @@ namespace Bomberman
         /// </summary>
         public class Bomberman : DirectionalSprite
         {
-            private PlayerNumber number;
+            private readonly PlayerNumber number;
             private int lives; // Quantidade de vidas.
             private float time; // Tempo (em segundos) restante que ele tem para poder completar o level atual.
-            private Box2D spawnBox; // Retângulo de desenho no momento do spawn.
             private int keys; // Conjunto de teclas que estão sendo pressionadas no momento.
             private List<Bomb> armedBombs; // Lista de bombas armadas que ainda não explodiram.
             private int bombs; // Quantidade máxima de bombas que o bomberman poderá armar antes q explodam.
             private int range; // Alcance da explosão de cada bomba.
-            private bool passBombs; // Indica se ele poderá atravessar bombas.
-            private bool redBomb; // Indica se a bomba será vermelha. Quando bombas vermelhas explodem, sua explosão atravessa soft blocks.
-            private bool remoteControl; // Indica se a bomba poderá ser detonada quando o jogador quiser e não por tempo.
-            private bool kickBombs; // Indica se a bomba poderá ser chutada.
             private bool kicking; // Indica se o Bomberman está chutando no momento.
             private int score; // Quantidade de pontos que o Bomberman fez até o momento.
             private float nextTimeThink; // Tempo (em segundos) de engine no qual deverá ser notificado ao engine o próximo tick do contador de tempo do Bomberman, para que seja atualizado no top panel o tempo do jogo.
@@ -2386,25 +2156,16 @@ namespace Bomberman
             public Bomberman(FrmBomberman engine, string name, PlayerNumber number, Box2D box, ImageList[] imageLists)
             // Dado o retângulo de desenho do Bomberman, o retângulo de colisão será a metade deste enquanto o de dano será um pouco menor ainda.
             // A posição do retângulo de colisão será aquela que ocupa a metade inferior do retângulo de desenho enquanto o retângulo de dano terá o mesmo centro que o retângulo de colisão.
-            : base(engine, name, box, new Box2D(new Vector2D(box.Origin.X, box.Origin.Y + box.Height / 2), Vector2D.NULL_VECTOR, new Vector2D(box.Width, box.Height / 2)) - 16, new Box2D(new Vector2D(box.Origin.X, box.Origin.Y + box.Height / 2), Vector2D.NULL_VECTOR, new Vector2D(box.Width, box.Height / 2)), imageLists)
-            {
-                this.number = number;
-            }
+            : base(engine, name, box, new Box2D(new Vector2D(box.Origin.X, box.Origin.Y + box.Height / 2), Vector2D.NULL_VECTOR, new Vector2D(box.Width, box.Height / 2)) - 16, new Box2D(new Vector2D(box.Origin.X, box.Origin.Y + box.Height / 2), Vector2D.NULL_VECTOR, new Vector2D(box.Width, box.Height / 2)), imageLists) => this.number = number;
 
-            protected override void OnHealthChanged(float health)
-            {
-                engine.RepaintHeart(); // Notifica o engine que o HP do Bomberman foi alterado para que seja redesenhado no top panel.
-            }
+            protected override void OnHealthChanged(float health) => engine.RepaintHeart(); // Notifica o engine que o HP do Bomberman foi alterado para que seja redesenhado no top panel.
 
             /// <summary>
             /// Quantidade de vidas que o Bomberman possui.
             /// </summary>
             public int Lives
             {
-                get
-                {
-                    return lives;
-                }
+                get => lives;
                 set
                 {
                     lives = value;
@@ -2417,10 +2178,7 @@ namespace Bomberman
             /// </summary>
             public float Time
             {
-                get
-                {
-                    return time;
-                }
+                get => time;
                 set
                 {
                     time = value;
@@ -2433,10 +2191,7 @@ namespace Bomberman
             /// </summary>
             public int Range
             {
-                get
-                {
-                    return range;
-                }
+                get => range;
                 set
                 {
                     range = value;
@@ -2449,14 +2204,8 @@ namespace Bomberman
             /// </summary>
             public bool RedBomb
             {
-                get
-                {
-                    return redBomb;
-                }
-                set
-                {
-                    redBomb = value;
-                }
+                get;
+                set;
             }
 
             /// <summary>
@@ -2464,36 +2213,21 @@ namespace Bomberman
             /// </summary>
             public bool PassBombs
             {
-                get
-                {
-                    return passBombs;
-                }
-                set
-                {
-                    passBombs = value;
-                }
+                get;
+                set;
             }
 
             /// <summary>
             /// Quantidade de bombas que o Bomberman armou antes que elas tenham explodido.
             /// </summary>
-            public int ArmedBombs
-            {
-                get
-                {
-                    return armedBombs.Count;
-                }
-            }
+            public int ArmedBombs => armedBombs.Count;
 
             /// <summary>
             /// Quantidade máxima de bombas que o Bomberman poderá armar antes que explodam.
             /// </summary>
             public int Bombs
             {
-                get
-                {
-                    return bombs;
-                }
+                get => bombs;
                 set
                 {
                     bombs = value;
@@ -2506,14 +2240,8 @@ namespace Bomberman
             /// </summary>
             public bool RemoteControl
             {
-                get
-                {
-                    return remoteControl;
-                }
-                set
-                {
-                    remoteControl = value;
-                }
+                get;
+                set;
             }
 
             /// <summary>
@@ -2521,14 +2249,8 @@ namespace Bomberman
             /// </summary>
             public bool KickBombs
             {
-                get
-                {
-                    return kickBombs;
-                }
-                set
-                {
-                    kickBombs = value;
-                }
+                get;
+                set;
             }
 
             /// <summary>
@@ -2536,10 +2258,8 @@ namespace Bomberman
             /// </summary>
             public Box2D SpawnBox
             {
-                get
-                {
-                    return spawnBox;
-                }
+                get;
+                private set;
             }
 
             /// <summary>
@@ -2547,10 +2267,7 @@ namespace Bomberman
             /// </summary>
             public int Score
             {
-                get
-                {
-                    return score;
-                }
+                get => score;
                 set
                 {
                     score = value;
@@ -2566,14 +2283,14 @@ namespace Bomberman
                 time = INITIAL_TIME;
                 bombs = 1;
                 range = 1;
-                spawnBox = drawBox;
+                SpawnBox = drawBox;
 
                 keys = 0;
                 armedBombs = new List<Bomb>();
-                passBombs = false;
-                redBomb = false;
-                remoteControl = false;
-                kickBombs = false;
+                PassBombs = false;
+                RedBomb = false;
+                RemoteControl = false;
+                KickBombs = false;
                 kicking = false;
 
                 nextTimeThink = engine.GetEngineTime() + 1; // Atualiza o tempo em que ocorrerá o próximo tick do relógio que marca o tempo restante de jogo que o Bomberman devera ter. Cada tick é de um segundo.
@@ -2621,24 +2338,21 @@ namespace Bomberman
                 base.Think();
             }
 
-            protected override bool ShouldCollide(Sprite sprite)
-            {
-                return !passBombs && sprite is Bomb; // O Bomberman só colidirá com outros sprites se forem bombas e se ele não tiver obtido o sprite de atravessar bombas ainda.
-            }
+            protected override bool ShouldCollide(Sprite sprite) => !PassBombs && sprite is Bomb; // O Bomberman só colidirá com outros sprites se forem bombas e se ele não tiver obtido o sprite de atravessar bombas ainda.
 
             protected override void OnStartTouch(Sprite sprite)
             {
                 // Quando o Bomberman tocar em algum sprite.
-                if (sprite is PowerUp) // Se ele for um powerup,
+                if (sprite is PowerUp up) // Se ele for um powerup,
                 {
                     sprite.Break(null); // remova o powerup.
                     Score += POWERUP_POINTS; // Atualiza o score do Bomberman.
 
                     // Verifica qual tipo de powerup era.
-                    switch (((PowerUp) sprite).Type)
+                    switch (up.Type)
                     {
                         case PowerUpType.BOMB_PASS: // Se for o atravessador de bombas,
-                            passBombs = true; // agora eu posso atravessar bombas.
+                            PassBombs = true; // agora eu posso atravessar bombas.
                             break;
 
                         case PowerUpType.BOMB_UP: // Se for o incrementador de bombas
@@ -2666,7 +2380,7 @@ namespace Bomberman
                             break;
 
                         case PowerUpType.KICK: // Se for o chutador de bombaas,
-                            kickBombs = true; // agora posso chutar bombas.
+                            KickBombs = true; // agora posso chutar bombas.
                             break;
 
                         case PowerUpType.LIFE: // Se for uma vida extra
@@ -2677,11 +2391,11 @@ namespace Bomberman
                             return; // Caia fora!
 
                         case PowerUpType.RED_BOMB: // Se for a bomba vermelha,
-                            redBomb = true; // agora posso plantar bombas vermelhas.
+                            RedBomb = true; // agora posso plantar bombas vermelhas.
                             break;
 
                         case PowerUpType.REMOTE_CONTROL: // Se for a bomba de controle remoto,
-                            remoteControl = true; // agora posso plantar bombas que poderão ser detonadas quando eu quiser.
+                            RemoteControl = true; // agora posso plantar bombas que poderão ser detonadas quando eu quiser.
                             break;
 
                         case PowerUpType.ROLLER: // Se for o patins
@@ -2760,10 +2474,7 @@ namespace Bomberman
             /// </summary>
             public int Keys
             {
-                get
-                {
-                    return keys;
-                }
+                get => keys;
                 set
                 {
                     if (keys != value)
@@ -2796,7 +2507,7 @@ namespace Bomberman
             /// </summary>
             public void Detonate()
             {
-                if (death || !remoteControl) // Se eu estiver morto ou se eu não possuir a habilidade de detonar bombas por controle remoto então não há nada oque ser fazer aqui.
+                if (death || !RemoteControl) // Se eu estiver morto ou se eu não possuir a habilidade de detonar bombas por controle remoto então não há nada oque ser fazer aqui.
                     return;
 
                 // Verifique a lista de bombas armadas desde o início e veja qual é a primeira bomba plantada desde que eu adquiri a habilidade de detonar bombas por controle remoto.
@@ -2818,7 +2529,7 @@ namespace Bomberman
             public void Kick()
             {
                 // Se eu estiver porto, se não puder chutar bombas ou se eu já estiver chutando, então não há nada o que se fazer aqui.
-                if (death || !kickBombs || kicking)
+                if (death || !KickBombs || kicking)
                     return;
 
                 kicking = true; // Agora estou chutando.
@@ -2834,8 +2545,8 @@ namespace Bomberman
 
                 foreach (Entity entity in overlappeds) // Verifique quais delas é uma bomba.
                 {
-                    if (entity is Bomb) // Se ela for uma,
-                        ((Bomb) entity).Velocity = BOMB_SPEED * directionVector; // coloque-a para mover na velocidade padrão da bomba e na direção para o qual eu estou apontando.
+                    if (entity is Bomb bomb) // Se ela for uma,
+                        bomb.Velocity = BOMB_SPEED * directionVector; // coloque-a para mover na velocidade padrão da bomba e na direção para o qual eu estou apontando.
                 }
             }
 
@@ -2881,7 +2592,6 @@ namespace Bomberman
         /// </summary>
         public class Enemy : DirectionalSprite
         {
-            private int points; // Pontos que esse inimigo dará ao Bomberman se for morto por ele.
 
             /// <summary>
             /// Cria um novo inimigo
@@ -2892,20 +2602,14 @@ namespace Bomberman
             /// <param name="box">Retângulo de desenho, de dano e de colisão do inimigo</param>
             /// <param name="imageLists">Array de lista de imagens que serão usadas na animação do inimigo</param>
             public Enemy(FrmBomberman engine, string name, int points, Box2D box, ImageList[] imageLists)
-            : base(engine, name, box, box, imageLists)
-            {
-                this.points = points;
-            }
+            : base(engine, name, box, box, imageLists) => Points = points;
 
             /// <summary>
             /// Pontos que o inimigo dará ao Bomberman quanfo for morto por ele.
             /// </summary>
             public int Points
             {
-                get
-                {
-                    return points;
-                }
+                get;
             }
 
             public override void Spawn()
@@ -2921,20 +2625,14 @@ namespace Bomberman
                 engine.enemyCount--; // E quando um inimigo morrer, notifique ao engine que o número de inimigos diminuiu
 
                 if (killer != null)
-                    killer.Score += points; // e incrementa os pontos do jogador que eliminou este inimigo.
+                    killer.Score += Points; // e incrementa os pontos do jogador que eliminou este inimigo.
 
                 base.OnDeath(killer);
             }
 
-            protected override void OnStartTouch(Sprite sprite)
-            {
-                CheckTouching(sprite);
-            }
+            protected override void OnStartTouch(Sprite sprite) => CheckTouching(sprite);
 
-            protected override void OnTouching(Sprite sprite)
-            {
-                CheckTouching(sprite);
-            }
+            protected override void OnTouching(Sprite sprite) => CheckTouching(sprite);
 
             private void CheckTouching(Sprite sprite)
             {
@@ -2956,10 +2654,7 @@ namespace Bomberman
             {
             }
 
-            protected override bool ShouldCollide(Sprite sprite)
-            {
-                return sprite is Creep || sprite is Bomb; // Como dito antes, só colido com um sprite se ele for uma bomba ou se for outro creep.
-            }
+            protected override bool ShouldCollide(Sprite sprite) => sprite is Creep || sprite is Bomb; // Como dito antes, só colido com um sprite se ele for uma bomba ou se for outro creep.
 
             protected override void Think()
             {
@@ -2968,7 +2663,6 @@ namespace Bomberman
                 if (!death && !moving) // E como dito antes, só mudo de direção se eu colidir com algo (e se eu não estiver morto, é claro). Sempre que um sprite colide com algo ele para de se mover.
                     RandomMove(); // A direção que o creep irá tomar será sempre aleatória, como foi dito antes.
             }
-
         }
 
         /// <summary>
@@ -2989,10 +2683,7 @@ namespace Bomberman
                 health = 2 * DEFAULT_HEALTH;
             }
 
-            protected override bool ShouldCollide(Sprite sprite)
-            {
-                return sprite is Bomb && sprite.Velocity == Vector2D.NULL_VECTOR; // Só irei colidir com bombas se ela não estiver se movendo.
-            }
+            protected override bool ShouldCollide(Sprite sprite) => sprite is Bomb && sprite.Velocity == Vector2D.NULL_VECTOR; // Só irei colidir com bombas se ela não estiver se movendo.
 
             protected override void Think()
             {
@@ -3005,7 +2696,7 @@ namespace Bomberman
                 Vector2D mins = collisionBox.Origin + collisionBox.Mins;
                 int x = (int) mins.X;
                 int y = (int) mins.Y;
-                Vector2D pos = new Vector2D(x, y);
+                var pos = new Vector2D(x, y);
                 TeleportTo(pos);
 
                 // Se eu não estiver
@@ -3052,12 +2743,12 @@ namespace Bomberman
                     }
                 }
 
-                List<Graph2DCoords> routeCoords = new List<Graph2DCoords>();
+                var routeCoords = new List<Graph2DCoords>();
                 engine.GenerateGraphNodeValues(dst); // Notifique ao engine que deverá ser atualizado os valores dos nós dos grafos com as distâncias relativas até o Bomberman.
 
                 if (DEBUG_ROUTE)
                 {
-                    List<Direction> route = new List<Direction>();
+                    var route = new List<Direction>();
 
                     if (engine.graph.GetMinimalRoute(src, routeCoords))
                     {
@@ -3109,7 +2800,6 @@ namespace Bomberman
                 else if (dx1 == 0 && dy1 == -1)
                     Direction = Direction.UP;
             }
-
         }
 
         /// <summary>
@@ -3117,51 +2807,34 @@ namespace Bomberman
         /// </summary>
         public class Bomb : Sprite
         {
-            private Bomberman bomberman; // Bomberman que a plantou
-            private bool red; // Indica se a bomba é vermelha ou não
             private int range; // Range da explosão da bomba
             private float elapsed; // Tempo (em segundos) decorrido desde que a bomba foi plantada
             private bool exploding; // Indica se a bomba está explodindo
             private bool exploded; // Indica se a bomba já explodiu
-            private bool timed; // Indica se a bomba irá explodir por tempo (true) ou por controle remoto (false)
 
             public Bomb(FrmBomberman engine, Bomberman bomberman, Box2D box, params ImageList[] imageLists)
-            : base(engine, "Bomb", box - 8, box, imageLists, false)
-            {
-                this.bomberman = bomberman;
-            }
+            : base(engine, "Bomb", box - 8, box, imageLists, false) => Bomberman = bomberman;
 
             /// <summary>
             /// Bomberman que plantou a bomba
             /// </summary>
             public Bomberman Bomberman
             {
-                get
-                {
-                    return bomberman;
-                }
+                get;
             }
 
             /// <summary>
             /// Alcance da explosão da bomba
             /// </summary>
-            public float Range
-            {
-                get
-                {
-                    return range;
-                }
-            }
+            public float Range => range;
 
             /// <summary>
             /// Indica se a bomba é vermelha
             /// </summary>
             public bool Red
             {
-                get
-                {
-                    return red;
-                }
+                get;
+                private set;
             }
 
             /// <summary>
@@ -3169,24 +2842,19 @@ namespace Bomberman
             /// </summary>
             public bool Timed
             {
-                get
-                {
-                    return timed;
-                }
+                get;
+                private set;
             }
 
-            protected override bool ShouldCollide(Sprite sprite)
-            {
-                return sprite is Bomb; // Bombas colidem com outras bombas.
-            }
+            protected override bool ShouldCollide(Sprite sprite) => sprite is Bomb; // Bombas colidem com outras bombas.
 
             public override void Spawn()
             {
                 base.Spawn();
 
-                range = bomberman.Range;
-                red = bomberman.RedBomb;
-                timed = !bomberman.RemoteControl;
+                range = Bomberman.Range;
+                Red = Bomberman.RedBomb;
+                Timed = !Bomberman.RemoteControl;
                 elapsed = 0;
                 exploding = false;
                 exploded = false;
@@ -3212,7 +2880,7 @@ namespace Bomberman
                 if (node != null)
                 {
                     engine.graph.Insert(node);
-                    Graph2DCoords dst = GetGraphCoords(bomberman.CollisionBox);
+                    Graph2DCoords dst = GetGraphCoords(Bomberman.CollisionBox);
 
                     if (dst != null)
                         engine.GenerateGraphNodeValues(dst);
@@ -3232,7 +2900,7 @@ namespace Bomberman
                 if (node != null)
                 {
                     engine.graph.Delete(node);
-                    Graph2DCoords dst = GetGraphCoords(bomberman.CollisionBox);
+                    Graph2DCoords dst = GetGraphCoords(Bomberman.CollisionBox);
 
                     if (dst != null)
                         engine.GenerateGraphNodeValues(dst);
@@ -3274,7 +2942,7 @@ namespace Bomberman
                 base.Think();
 
                 // Se eu não estiver explodindo e se eu explodo somente com tempo
-                if (!exploding && timed)
+                if (!exploding && Timed)
                 {
                     elapsed += TICK; // atualize meu tempo
 
@@ -3290,10 +2958,10 @@ namespace Bomberman
                     if (x % CELL_SIZE != 0 || y % CELL_SIZE != 0) // Se eu não estiver exatamente dentro de uma única célula...
                     {
                         // ... então calcule as coordenadas da célula mais próxima
-                        int x0 = (x / CELL_SIZE) * CELL_SIZE;
+                        int x0 = x / CELL_SIZE * CELL_SIZE;
                         x = x - x0 <= x0 + CELL_SIZE - x ? x0 : x0 + CELL_SIZE;
 
-                        int y0 = (y / CELL_SIZE) * CELL_SIZE;
+                        int y0 = y / CELL_SIZE * CELL_SIZE;
                         y = y - y0 <= y0 + CELL_SIZE - y ? y0 : y0 + CELL_SIZE;
                     }
 
@@ -3301,7 +2969,7 @@ namespace Bomberman
                     vel = Vector2D.NULL_VECTOR; // Pare meu movimento.
                     exploding = false; // Não estou mais explodindo
                     exploded = true; // pos eu já explodi!
-                    bomberman.OnBombExploded(this); // Notifica ao Bomberman que eu explodi.
+                    Bomberman.OnBombExploded(this); // Notifica ao Bomberman que eu explodi.
                     Break(null); // Me quebre!
                     engine.SpawnFlames(this, range); // Spawne as minhas chamas.
 
@@ -3311,7 +2979,7 @@ namespace Bomberman
                     if (node != null)
                     {
                         engine.graph.Insert(node);
-                        Graph2DCoords dst = GetGraphCoords(bomberman.CollisionBox);
+                        Graph2DCoords dst = GetGraphCoords(Bomberman.CollisionBox);
 
                         if (dst != null)
                             engine.GenerateGraphNodeValues(dst);
@@ -3330,21 +2998,13 @@ namespace Bomberman
         /// </summary>
         public class Flame : Sprite
         {
-            private Bomberman player;
-
             public Bomberman Player
             {
-                get
-                {
-                    return player;
-                }
+                get;
             }
 
             public Flame(FrmBomberman engine, Bomberman player, Box2D box, params ImageList[] imageLists)
-            : base(engine, "Flame", box, box, imageLists, false)
-            {
-                this.player = player;
-            }
+            : base(engine, "Flame", box, box, imageLists, false) => Player = player;
 
             public override void Spawn()
             {
@@ -3353,26 +3013,17 @@ namespace Bomberman
                 FadeIn(FLAME_TIMELIFE); // Quando uma chama acaba de surgir, ela deve sumir lentamente com o tempo.
             }
 
-            protected override void OnStartTouch(Sprite sprite)
-            {
-                CheckTouching(sprite);
-            }
+            protected override void OnStartTouch(Sprite sprite) => CheckTouching(sprite);
 
-            protected override void OnTouching(Sprite sprite)
-            {
-                CheckTouching(sprite);
-            }
+            protected override void OnTouching(Sprite sprite) => CheckTouching(sprite);
 
             private void CheckTouching(Sprite sprite)
             {
                 if (Opacity >= MININAL_OPACITY_TO_HURT) // Se uma chama toca alguém e sua opacidade for pelo menos um determinado valor
-                    Hurt(sprite, player, DEFAULT_HEALTH); // cause dano neste alguém desde que toque sua hit box (o que será verificado dentro da chamada Hurt()).
+                    Hurt(sprite, Player, DEFAULT_HEALTH); // cause dano neste alguém desde que toque sua hit box (o que será verificado dentro da chamada Hurt()).
             }
 
-            protected override void OnFadeInComplete()
-            {
-                Kill(null); // Quando o efeito de fade in terminar, me mate!
-            }
+            protected override void OnFadeInComplete() => Kill(null); // Quando o efeito de fade in terminar, me mate!
         }
 
         /// <summary>
@@ -3403,10 +3054,7 @@ namespace Bomberman
             private PowerUpType type; // Tipo do powerup
 
             public PowerUp(FrmBomberman engine, PowerUpType type, Box2D box, params ImageList[] imageLists)
-            : base(engine, type.ToString(), box - POWERUP_DRAWBOX_BORDER_SIZE, box, imageLists, false)
-            {
-                this.type = type;
-            }
+            : base(engine, type.ToString(), box - POWERUP_DRAWBOX_BORDER_SIZE, box, imageLists, false) => this.type = type;
 
             protected override void OnCreateAnimation(int animationIndex, ref ImageList imageList, ref float fps, ref int initialFrame, ref bool startVisible, ref bool startOn, ref bool loop)
             {
@@ -3420,10 +3068,7 @@ namespace Bomberman
             /// </summary>
             public PowerUpType Type
             {
-                get
-                {
-                    return type;
-                }
+                get => type;
                 set
                 {
                     type = value;
@@ -3438,7 +3083,6 @@ namespace Bomberman
         /// </summary>
         public class SoftBlock : Sprite
         {
-            private Sprite prize; // Sprite que irá surgir no lugar do bloco quando ele se quebrar, geralmente um powerup mas poderá ser também um portal.
             protected bool breaking; // Indica se o bloco está se quebrando.
             protected Bomberman breaker;
             private float nextBreakThink; // Tempo (sem segundos) de quando a quebra do bloco terminará.
@@ -3451,20 +3095,14 @@ namespace Bomberman
             /// <param name="prize">Sprite que irá surgir no lugar do bloco quando ele se quebrar, geralmente um powerup mas poderá ser também um portal</param>
             /// <param name="imageLists">Array de lista de imagens que serão usadas na animação do soft block.</param>
             public SoftBlock(FrmBomberman engine, Box2D box, Sprite prize, params ImageList[] imageLists)
-            : base(engine, "SoftBlock", box, box, imageLists, false)
-            {
-                this.prize = prize;
-            }
+            : base(engine, "SoftBlock", box, box, imageLists, false) => Prize = prize;
 
             /// <summary>
             /// Sprite que irá surgir no lugar do bloco quando ele se quebrar, geralmente um powerup mas poderá ser também um portal
             /// </summary>
             public Sprite Prize
             {
-                get
-                {
-                    return prize;
-                }
+                get;
             }
 
             public override void Spawn()
@@ -3510,8 +3148,7 @@ namespace Bomberman
                 if (breaker != null)
                     breaker.Score += SOFT_BLOCK_POINTS; // atualiza os pontos do Bomberman.
 
-                if (prize != null) // Se havia um prêmio
-                    prize.Spawn(); // spawne este prêmio
+                Prize?.Spawn(); // spawne este prêmio
 
                 // E por fim, atualize o grafo.
                 Graph2DCoords node = GetGraphCoords(collisionBox);
@@ -3550,8 +3187,6 @@ namespace Bomberman
         /// </summary>
         public class RespawnEntry
         {
-            private Bomberman bomberman; // Bomberman que será respawnado
-            private float time; // Tempo que deverá se esperar para que o respawn ocorra
 
             /// <summary>
             /// Cria uma nova entrada de respawn
@@ -3560,8 +3195,8 @@ namespace Bomberman
             /// <param name="time">Tempo que deverá se esperar para que o respawn ocorra</param>
             public RespawnEntry(Bomberman bomberman, float time)
             {
-                this.bomberman = bomberman;
-                this.time = time;
+                Bomberman = bomberman;
+                Time = time;
             }
 
             /// <summary>
@@ -3569,10 +3204,7 @@ namespace Bomberman
             /// </summary>
             public Bomberman Bomberman
             {
-                get
-                {
-                    return bomberman;
-                }
+                get;
             }
 
             /// <summary>
@@ -3580,14 +3212,11 @@ namespace Bomberman
             /// </summary>
             public float Time
             {
-                get
-                {
-                    return time;
-                }
+                get;
             }
         }
 
-        private FrmMenu menu;
+        private readonly FrmMenu menu;
         private AccurateTimer timer;
         private float engineTime;
         private Random random;
@@ -3622,27 +3251,26 @@ namespace Bomberman
         private bool showPressEnter;
         private bool loadingLevel;
         private float nextGameOverThink;
-        private KeyBinding keyBinding;
         private bool paused;
         private Box2D gameOverBox;
         private Box2D pressEnterBox;
-        private SoundCollection sounds;
+        private readonly SoundCollection sounds;
         private string currentStageMusic;
         private long lastCurrentMemoryUsage;
 
-        private bool netplay;
-        private bool netplayServer;
-        private string netplayHost;
-        private int netplayPort;
-        private UdpClient udp;
-        private MemoryStream stream;
-        private BinaryReader reader;
-        private BinaryWriter writter;
+        private readonly bool netplay;
+        private readonly bool netplayServer;
+        private readonly string netplayHost;
+        private readonly int netplayPort;
+        private readonly UdpClient udp;
+        private readonly MemoryStream stream;
+        private readonly BinaryReader reader;
+        private readonly BinaryWriter writter;
 
         public FrmBomberman(FrmMenu menu, KeyBinding keyBinding, SoundCollection sounds)
         {
             this.menu = menu;
-            this.keyBinding = keyBinding;
+            Binding = keyBinding;
             this.sounds = sounds;
 
             InitializeComponent();
@@ -3650,14 +3278,8 @@ namespace Bomberman
 
         public KeyBinding Binding
         {
-            get
-            {
-                return keyBinding;
-            }
-            set
-            {
-                keyBinding = value;
-            }
+            get;
+            set;
         }
 
         public static Graph2DCoords GetGraphCoords(Box2D box)
@@ -3667,16 +3289,10 @@ namespace Bomberman
             int col = (int) (mins.X / CELL_SIZE - INTERNAL_ORIGIN_COL);
             int row = (int) (mins.Y / CELL_SIZE - INTERNAL_ORIGIN_ROW);
 
-            if (col >= 0 && col < INTERNAL_COL_COUNT && row >= 0 && row < INTERNAL_ROW_COUNT)
-                return new Graph2DCoords(row, col);
-
-            return null;
+            return col >= 0 && col < INTERNAL_COL_COUNT && row >= 0 && row < INTERNAL_ROW_COUNT ? new Graph2DCoords(row, col) : null;
         }
 
-        private void GenerateGraphNodeValues(Graph2DCoords coords)
-        {
-            GenerateGraphNodeValues(coords.Row, coords.Col);
-        }
+        private void GenerateGraphNodeValues(Graph2DCoords coords) => GenerateGraphNodeValues(coords.Row, coords.Col);
 
         private void GenerateGraphNodeValues(int row, int col)
         {
@@ -3690,45 +3306,21 @@ namespace Bomberman
             }
         }
 
-        public Point TransformVector(Vector2D v)
-        {
-            return (v * drawScale + drawOrigin).ToPoint();
-        }
+        public Point TransformVector(Vector2D v) => (v * drawScale + drawOrigin).ToPoint();
 
-        public Point TransformVector(float x, float y)
-        {
-            return TransformVector(new Vector2D(x, y));
-        }
+        public Point TransformVector(float x, float y) => TransformVector(new Vector2D(x, y));
 
-        public Vector2D TransformPoint(Point p)
-        {
-            return (new Vector2D(p) - drawOrigin) / drawScale;
-        }
+        public Vector2D TransformPoint(Point p) => (new Vector2D(p) - drawOrigin) / drawScale;
 
-        public Vector2D TransformPoint(PointF p)
-        {
-            return (new Vector2D(p) - drawOrigin) / drawScale;
-        }
+        public Vector2D TransformPoint(PointF p) => (new Vector2D(p) - drawOrigin) / drawScale;
 
-        public Rectangle TransformBox(Box2D box)
-        {
-            return (box * drawScale + drawOrigin).ToRectangle();
-        }
+        public Rectangle TransformBox(Box2D box) => (box * drawScale + drawOrigin).ToRectangle();
 
-        public Box2D TransformRectangle(Rectangle rect)
-        {
-            return (new Box2D(rect) - drawOrigin) / drawScale;
-        }
+        public Box2D TransformRectangle(Rectangle rect) => (new Box2D(rect) - drawOrigin) / drawScale;
 
-        public Box2D TransformRectangle(RectangleF rect)
-        {
-            return (new Box2D(rect) - drawOrigin) / drawScale;
-        }
+        public Box2D TransformRectangle(RectangleF rect) => (new Box2D(rect) - drawOrigin) / drawScale;
 
-        public static Box2D GetBoxFromCell(int row, int col)
-        {
-            return GetBoxFromCell(row, col, CELL_SIZE, CELL_SIZE);
-        }
+        public static Box2D GetBoxFromCell(int row, int col) => GetBoxFromCell(row, col, CELL_SIZE, CELL_SIZE);
 
         public static Box2D GetBoxFromCell(int row, int col, float width, float height)
         {
@@ -3739,7 +3331,7 @@ namespace Bomberman
 
         public List<Entity> GetOverlappedEntities(Box2D box, Sprite exclude = null, bool includeAdded = false, bool onlyStatics = false)
         {
-            List<Entity> result = new List<Entity>();
+            var result = new List<Entity>();
 
             foreach (HardBlock block in blocks)
             {
@@ -3783,18 +3375,9 @@ namespace Bomberman
 
         public delegate bool OverlappingFilter(Entity entity);
 
-        public static bool IsStatic(Entity entity)
-        {
-            return entity is HardBlock || entity is Sprite && ((Sprite) entity).Static;
-        }
+        public static bool IsStatic(Entity entity) => entity is HardBlock || entity is Sprite sprite && sprite.Static;
 
-        public bool IsOverlapping(Box2D box, Sprite exclude = null, bool includeAdded = false, bool onlyStatics = false)
-        {
-            if (onlyStatics)
-                return IsOverlapping(box, exclude, IsStatic, includeAdded);
-
-            return IsOverlapping(box, exclude, null, includeAdded);
-        }
+        public bool IsOverlapping(Box2D box, Sprite exclude = null, bool includeAdded = false, bool onlyStatics = false) => onlyStatics ? IsOverlapping(box, exclude, IsStatic, includeAdded) : IsOverlapping(box, exclude, null, includeAdded);
 
         public bool IsOverlapping(Box2D box, Sprite exclude = null, OverlappingFilter filter = null, bool includeAdded = false)
         {
@@ -3841,19 +3424,13 @@ namespace Bomberman
             return false;
         }
 
-        private HardBlock MakeHardBlock(string name, int skin, int row, int col)
-        {
-            return MakeHardBlock(name, skin, row, col, CELL_SIZE, CELL_SIZE);
-        }
+        private HardBlock MakeHardBlock(string name, int skin, int row, int col) => MakeHardBlock(name, skin, row, col, CELL_SIZE, CELL_SIZE);
 
-        private HardBlock MakeHardBlock(string name, int skin, int row, int col, float width, float height)
-        {
-            return MakeHardBlock(name, GetBoxFromCell(row, col, width, height), skin);
-        }
+        private HardBlock MakeHardBlock(string name, int skin, int row, int col, float width, float height) => MakeHardBlock(name, GetBoxFromCell(row, col, width, height), skin);
 
         private HardBlock MakeHardBlock(string name, Box2D box, int skin)
         {
-            HardBlock block = new HardBlock(this, name, box, new ImageList[] { ilBlocks }, skin);
+            var block = new HardBlock(this, name, box, new ImageList[] { ilBlocks }, skin);
 
             partitionStatics.Insert(block);
 
@@ -3874,17 +3451,14 @@ namespace Bomberman
             return block;
         }
 
-        public static bool IsStaticOrBomb(Entity entity)
-        {
-            return entity is HardBlock || entity is Sprite && ((Sprite) entity).Static || entity is Bomb;
-        }
+        public static bool IsStaticOrBomb(Entity entity) => entity is HardBlock || entity is Sprite sprite && sprite.Static || entity is Bomb;
 
         private Bomb SpawnBomb(Bomberman bomberman)
         {
             Box2D box = bomberman.CollisionBox;
             Vector2D m = box.Origin + box.Mins;
 
-            Box2D cellBox1 = new Box2D(new Vector2D((int) (m.X / CELL_SIZE) * CELL_SIZE, (int) (m.Y / CELL_SIZE) * CELL_SIZE), Vector2D.NULL_VECTOR, new Vector2D(box.Size));
+            var cellBox1 = new Box2D(new Vector2D((int) (m.X / CELL_SIZE) * CELL_SIZE, (int) (m.Y / CELL_SIZE) * CELL_SIZE), Vector2D.NULL_VECTOR, new Vector2D(box.Size));
             Box2D intersection = cellBox1 & box;
             float area1 = intersection.Area();
 
@@ -3897,7 +3471,7 @@ namespace Bomberman
             if (IsOverlapping(cellBox, bomberman, IsStaticOrBomb, true))
                 return null;
 
-            Bomb bomb = new Bomb(this, bomberman, cellBox, bomberman.RemoteControl ? (bomberman.RedBomb ? ilRemoteControlRedBomb : ilRemoteControlBomb) : (bomberman.RedBomb ? ilRedBomb : ilBomb));
+            var bomb = new Bomb(this, bomberman, cellBox, bomberman.RemoteControl ? (bomberman.RedBomb ? ilRemoteControlRedBomb : ilRemoteControlBomb) : (bomberman.RedBomb ? ilRedBomb : ilBomb));
             bomb.Spawn();
 
             Graph2DCoords node = GetGraphCoords(bomb.CollisionBox);
@@ -3915,24 +3489,32 @@ namespace Bomberman
 
         private void SpawnFlames(Bomb bomb, int range)
         {
-            Flame flame = new Flame(this, bomb.Bomberman, bomb.CollisionBox, ilFlame);
+            var flame = new Flame(this, bomb.Bomberman, bomb.CollisionBox, ilFlame);
             flame.Spawn();
 
             int dx = 1;
 
-            for (; dx <= range && SpawnFlame(bomb, dx, 0) != null; dx++) { }
+            for (; dx <= range && SpawnFlame(bomb, dx, 0) != null; dx++)
+            {
+            }
 
             dx = -1;
 
-            for (; dx >= -range && SpawnFlame(bomb, dx, 0) != null; dx--) { }
+            for (; dx >= -range && SpawnFlame(bomb, dx, 0) != null; dx--)
+            {
+            }
 
             int dy = 1;
 
-            for (; dy <= range && SpawnFlame(bomb, 0, dy) != null; dy++) { }
+            for (; dy <= range && SpawnFlame(bomb, 0, dy) != null; dy++)
+            {
+            }
 
             dy = -1;
 
-            for (; dy >= -range && SpawnFlame(bomb, 0, dy) != null; dy--) { }
+            for (; dy >= -range && SpawnFlame(bomb, 0, dy) != null; dy--)
+            {
+            }
         }
 
         private Flame SpawnFlame(Bomb bomb, int dx, int dy)
@@ -3947,7 +3529,7 @@ namespace Bomberman
                     return null;
             }
 
-            List<Sprite> spritesToHurt = new List<Sprite>();
+            var spritesToHurt = new List<Sprite>();
 
             foreach (Sprite sprite in sprites)
             {
@@ -3961,9 +3543,9 @@ namespace Bomberman
                     if (sprite is Flame)
                         continue;
 
-                    if (sprite is Bomb)
+                    if (sprite is Bomb bomb1)
                     {
-                        ((Bomb) sprite).Explode();
+                        bomb1.Explode();
                         return null;
                     }
 
@@ -3979,7 +3561,7 @@ namespace Bomberman
                 }
             }
 
-            Flame flame = new Flame(this, bomb.Bomberman, box, ilFlame);
+            var flame = new Flame(this, bomb.Bomberman, box, ilFlame);
             flame.Spawn();
 
             foreach (Sprite sprite in spritesToHurt)
@@ -3990,7 +3572,7 @@ namespace Bomberman
 
         public PowerUp CreatePowerUp(PowerUpType type, Box2D box, bool spawn = true)
         {
-            PowerUp powerup = new PowerUp(this, type, box, ilPowerUp);
+            var powerup = new PowerUp(this, type, box, ilPowerUp);
 
             if (spawn)
                 powerup.Spawn();
@@ -3998,15 +3580,9 @@ namespace Bomberman
             return powerup;
         }
 
-        private void SpawnPlayer1()
-        {
-            SpawnPlayer(PlayerNumber.FIRST);
-        }
+        private void SpawnPlayer1() => SpawnPlayer(PlayerNumber.FIRST);
 
-        private void SpawnPlayer2()
-        {
-            SpawnPlayer(PlayerNumber.SECOND);
-        }
+        private void SpawnPlayer2() => SpawnPlayer(PlayerNumber.SECOND);
 
         private void SpawnPlayer(PlayerNumber number)
         {
@@ -4015,30 +3591,15 @@ namespace Bomberman
             player[index].Spawn();
         }
 
-        private int RandomInt()
-        {
-            return random.Next();
-        }
+        private int RandomInt() => random.Next();
 
-        private int RandomInt(int max)
-        {
-            return random.Next(max);
-        }
+        private int RandomInt(int max) => random.Next(max);
 
-        private int RandomInt(int min, int max)
-        {
-            return random.Next(min, max);
-        }
+        private int RandomInt(int min, int max) => random.Next(min, max);
 
-        private float RandomFloat()
-        {
-            return (float) random.NextDouble();
-        }
+        private float RandomFloat() => (float) random.NextDouble();
 
-        public float GetEngineTime()
-        {
-            return engineTime;
-        }
+        public float GetEngineTime() => engineTime;
 
         private void TimerTick1()
         {
@@ -4048,15 +3609,9 @@ namespace Bomberman
                 Close();
         }
 
-        public void ScheduleRespawn(Bomberman bomberman)
-        {
-            ScheduleRespawn(bomberman, RESPAWN_TIME);
-        }
+        public void ScheduleRespawn(Bomberman bomberman) => ScheduleRespawn(bomberman, RESPAWN_TIME);
 
-        public void ScheduleRespawn(Bomberman bomberman, float time)
-        {
-            scheduleRespawns.Add(new RespawnEntry(bomberman, GetEngineTime() + time));
-        }
+        public void ScheduleRespawn(Bomberman bomberman, float time) => scheduleRespawns.Add(new RespawnEntry(bomberman, GetEngineTime() + time));
 
         public void NextLevel()
         {
@@ -4098,8 +3653,8 @@ namespace Bomberman
             hardGraph.Fetch();
 
             background = new Bitmap((int) DEFAULT_GAME_AREA_RECT.Width, (int) DEFAULT_GAME_AREA_RECT.Height);
-            Graphics g = Graphics.FromImage(background);
-            using (TextureBrush brush = new TextureBrush(ilBackground.Images[currentLevel % STAGE_COUNT], WrapMode.Tile))
+            var g = Graphics.FromImage(background);
+            using (var brush = new TextureBrush(ilBackground.Images[currentLevel % STAGE_COUNT], WrapMode.Tile))
             {
                 g.FillRectangle(brush, DEFAULT_GAME_AREA_RECT);
             }
@@ -4117,7 +3672,7 @@ namespace Bomberman
                 {
                     int row = 2 * j + 1;
                     int col = 2 * i + 1;
-                    MakeHardBlock(("Middle block " + i) + j, currentLevel % STAGE_COUNT, row, col);
+                    MakeHardBlock("Middle block " + i + j, currentLevel % STAGE_COUNT, row, col);
                 }
 
             int randomHardBlockCount = 0;
@@ -4143,8 +3698,8 @@ namespace Bomberman
             for (int i = 0; i < powerUpCount.Length; i++)
                 powerUpCount[i] = 0;
 
-            List<int> powerUpLocations = new List<int>();
-            PowerUpType[] powerUpTypes = new PowerUpType[MAX_SOFT_BLOCK_POWERUPS_PER_LEVEL];
+            var powerUpLocations = new List<int>();
+            var powerUpTypes = new PowerUpType[MAX_SOFT_BLOCK_POWERUPS_PER_LEVEL];
 
             for (int i = 0; i < MAX_SOFT_BLOCK_POWERUPS_PER_LEVEL; i++)
             {
@@ -4196,7 +3751,7 @@ namespace Bomberman
                 else if (powerUpCounter < MAX_SOFT_BLOCK_POWERUPS_PER_LEVEL && powerUpLocations.Contains(i))
                     prize = CreatePowerUp(powerUpTypes[powerUpCounter++], box, false);
 
-                SoftBlock block = new SoftBlock(this, box, prize, softBlockImages[currentLevel % STAGE_COUNT]);
+                var block = new SoftBlock(this, box, prize, softBlockImages[currentLevel % STAGE_COUNT]);
                 block.Spawn();
 
                 Graph2DCoords node = GetGraphCoords(block.CollisionBox);
@@ -4236,12 +3791,12 @@ namespace Bomberman
 
                 if (i < creepCount)
                 {
-                    Creep creep = new Creep(this, "Creep", CREEP_POINTS, box, new ImageList[] { creepImages[currentLevel % CREEP_IMAGE_COUNT, 0], creepImages[currentLevel % CREEP_IMAGE_COUNT, 1], creepImages[currentLevel % CREEP_IMAGE_COUNT, 2], creepImages[currentLevel % CREEP_IMAGE_COUNT, 3] });
+                    var creep = new Creep(this, "Creep", CREEP_POINTS, box, new ImageList[] { creepImages[currentLevel % CREEP_IMAGE_COUNT, 0], creepImages[currentLevel % CREEP_IMAGE_COUNT, 1], creepImages[currentLevel % CREEP_IMAGE_COUNT, 2], creepImages[currentLevel % CREEP_IMAGE_COUNT, 3] });
                     creep.Spawn();
                 }
                 else
                 {
-                    Cactus cactus = new Cactus(this, "Cactus", CACTUS_POINTS, box, new ImageList[] { cactusImages[currentLevel % CACTUS_IMAGE_COUNT, 0], cactusImages[currentLevel % CACTUS_IMAGE_COUNT, 1], cactusImages[currentLevel % CACTUS_IMAGE_COUNT, 2], cactusImages[currentLevel % CACTUS_IMAGE_COUNT, 3] });
+                    var cactus = new Cactus(this, "Cactus", CACTUS_POINTS, box, new ImageList[] { cactusImages[currentLevel % CACTUS_IMAGE_COUNT, 0], cactusImages[currentLevel % CACTUS_IMAGE_COUNT, 1], cactusImages[currentLevel % CACTUS_IMAGE_COUNT, 2], cactusImages[currentLevel % CACTUS_IMAGE_COUNT, 3] });
                     cactus.Spawn();
                 }
             }
@@ -4436,17 +3991,9 @@ namespace Bomberman
             base.OnClosing(e);
         }
 
-        public void PlaySound(string soundName, bool loop = false)
-        {
-            if (sounds != null)
-                sounds.Play(soundName, loop);
-        }
+        public void PlaySound(string soundName, bool loop = false) => sounds?.Play(soundName, loop);
 
-        public void StopSound(string soundName)
-        {
-            if (sounds != null)
-                sounds.Stop(soundName);
-        }
+        public void StopSound(string soundName) => sounds?.Stop(soundName);
 
         public void TogglePauseGame()
         {
@@ -4486,24 +4033,24 @@ namespace Bomberman
 
             if (!paused)
             {
-                if (keyCode == keyBinding.Left)
+                if (keyCode == Binding.Left)
                     player[0].Keys |= DirectionToInt(Direction.LEFT);
-                else if (keyCode == keyBinding.Up)
+                else if (keyCode == Binding.Up)
                     player[0].Keys |= DirectionToInt(Direction.UP);
-                else if (keyCode == keyBinding.Right)
+                else if (keyCode == Binding.Right)
                     player[0].Keys |= DirectionToInt(Direction.RIGHT);
-                else if (keyCode == keyBinding.Down)
+                else if (keyCode == Binding.Down)
                     player[0].Keys |= DirectionToInt(Direction.DOWN);
-                else if (keyCode == keyBinding.DropBomb)
+                else if (keyCode == Binding.DropBomb)
                     player[0].DropBomb();
-                else if (keyCode == keyBinding.Kick)
+                else if (keyCode == Binding.Kick)
                     player[0].Kick();
-                else if (keyCode == keyBinding.Detonate)
+                else if (keyCode == Binding.Detonate)
                     player[0].Detonate();
-                else if (keyCode == keyBinding.Pause)
+                else if (keyCode == Binding.Pause)
                     PauseGame();
             }
-            else if (keyCode == keyBinding.Pause)
+            else if (keyCode == Binding.Pause)
                 ContinueGame();
         }
 
@@ -4511,13 +4058,13 @@ namespace Bomberman
         {
             Keys keyCode = e.KeyCode;
 
-            if (keyCode == keyBinding.Left)
+            if (keyCode == Binding.Left)
                 player[0].Keys &= ~DirectionToInt(Direction.LEFT);
-            else if (keyCode == keyBinding.Up)
+            else if (keyCode == Binding.Up)
                 player[0].Keys &= ~DirectionToInt(Direction.UP);
-            else if (keyCode == keyBinding.Right)
+            else if (keyCode == Binding.Right)
                 player[0].Keys &= ~DirectionToInt(Direction.RIGHT);
-            else if (keyCode == keyBinding.Down)
+            else if (keyCode == Binding.Down)
                 player[0].Keys &= ~DirectionToInt(Direction.DOWN);
         }
 
@@ -4656,7 +4203,7 @@ namespace Bomberman
                     PlaySound("gameover");
 
                     gameOverImage = new Bitmap(Assembly.GetExecutingAssembly().GetManifestResourceStream("Bomberman.Resources.Textures.GameOver.game_over.png"));
-                    Vector2D imageSize = new Vector2D(gameOverImage.Size);
+                    var imageSize = new Vector2D(gameOverImage.Size);
                     gameOverBox = new Box2D(Vector2D.NULL_VECTOR, Vector2D.NULL_VECTOR, imageSize) + (DEFAULT_CLIENT_BOX.SizeVector - imageSize) / 2;
 
                     pressEnterImage = new Bitmap(Assembly.GetExecutingAssembly().GetManifestResourceStream("Bomberman.Resources.Textures.GameOver.press_enter.png"));
@@ -4767,7 +4314,7 @@ namespace Bomberman
             // Desenha o top panel
             if ((DEFAULT_TOP_PANEL_BOX & drawBox).Area() != 0)
             {
-                Font font = new Font("Arial", 30 * drawScale, GraphicsUnit.Pixel);
+                var font = new Font("Arial", 30 * drawScale, GraphicsUnit.Pixel);
 
                 // Desenha o número do level
                 if ((DEFAULT_LEVEL_BOX & drawBox).Area() != 0)
@@ -4797,7 +4344,7 @@ namespace Bomberman
                 // Desenha o score
                 if ((DEFAULT_SCORE_BOX & drawBox).Area() != 0)
                 {
-                    using (Pen pen = new Pen(Color.White, 2))
+                    using (var pen = new Pen(Color.White, 2))
                     {
                         g.DrawRectangle(pen, TransformBox(DEFAULT_SCORE_BOX));
                     }
@@ -4816,14 +4363,14 @@ namespace Bomberman
                 // Desenha o tempo
                 if ((DEFAULT_TIME_BOX & drawBox).Area() != 0)
                 {
-                    using (Pen pen = new Pen(Color.White, 2))
+                    using (var pen = new Pen(Color.White, 2))
                     {
                         g.DrawRectangle(pen, TransformBox(DEFAULT_TIME_BOX));
                     }
 
-                    int seconds = (int)player[0].Time;
+                    int seconds = (int) player[0].Time;
                     int minutes = seconds / 60;
-                    seconds = seconds % 60;
+                    seconds %= 60;
                     string text = minutes + ":" + (seconds < 10 ? "0" + seconds : seconds.ToString());
                     Vector2D fontSize = new Vector2D(g.MeasureString(text, font)) / drawScale;
                     using (Brush brush = new SolidBrush(Color.White))
@@ -4911,7 +4458,7 @@ namespace Bomberman
 
             // Debug
             if (debugPath.Count > 0)
-                using (Pen pen = new Pen(Color.Red, 2))
+                using (var pen = new Pen(Color.Red, 2))
                 {
                     Vector2D v0 = debugPath[0];
 
@@ -4925,7 +4472,7 @@ namespace Bomberman
 
             if (DEBUG_GRAPH)
             {
-                Font font = new Font("Arial", 16 * drawScale);
+                var font = new Font("Arial", 16 * drawScale);
                 using (Brush brush = new SolidBrush(Color.Blue))
                 {
                     for (int row = 0; row < INTERNAL_ROW_COUNT; row++)
@@ -4950,7 +4497,7 @@ namespace Bomberman
             }
 
             if (DEBUG_DRAW_CLIPRECT)
-                using (Pen pen = new Pen(Color.Yellow, 2))
+                using (var pen = new Pen(Color.Yellow, 2))
                 {
                     g.DrawRectangle(pen, clipRect.X, clipRect.Y, clipRect.Width, clipRect.Height);
                 }
@@ -4974,7 +4521,7 @@ namespace Bomberman
         private void SendStateOverNetwork()
         {
             stream.Position = 0;
-            writter.Write((byte)sprites.Count);
+            writter.Write((byte) sprites.Count);
             for (int i = 0; i < sprites.Count; i++)
             {
                 Sprite sprite = sprites[i];

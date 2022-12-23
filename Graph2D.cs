@@ -17,8 +17,6 @@ namespace Bomberman
     /// </summary>
     public class Graph2DCoords
     {
-        private int row; // Linha
-        private int col; // Coluna
 
         /// <summary>
         /// Cria uma nova classe contendo as coordenadas de um nó pertencente a um grafo bidimensional
@@ -27,8 +25,8 @@ namespace Bomberman
         /// <param name="col">Coluna</param>
         public Graph2DCoords(int row, int col)
         {
-            this.row = row;
-            this.col = col;
+            Row = row;
+            this.Col = col;
         }
 
         /// <summary>
@@ -36,7 +34,7 @@ namespace Bomberman
         /// </summary>
         public int Row
         {
-            get { return row; }
+            get;
         }
 
         /// <summary>
@@ -44,13 +42,10 @@ namespace Bomberman
         /// </summary>
         public int Col
         {
-            get { return col; }
+            get;
         }
 
-        public override int GetHashCode()
-        {
-            return 256 * row + col;
-        }
+        public override int GetHashCode() => 256 * Row + Col;
 
         public override bool Equals(object obj)
         {
@@ -59,8 +54,8 @@ namespace Bomberman
             if (!(obj is Graph2DCoords))
                 return false;
 
-            Graph2DCoords coords = (Graph2DCoords)obj;
-            return row == coords.row && col == coords.col;
+            var coords = (Graph2DCoords)obj;
+            return Row == coords.Row && Col == coords.Col;
         }
     }
 
@@ -113,99 +108,57 @@ namespace Bomberman
             /// <summary>
             /// Grafo ao qual este nó pertence
             /// </summary>
-            public Graph2D Graph
-            {
-                get { return graph; }
-            }
+            public Graph2D Graph => graph;
 
             /// <summary>
             /// Linha
             /// </summary>
-            public int Row
-            {
-                get { return row; }
-            }
+            public int Row => row;
 
             /// <summary>
             /// Coluna
             /// </summary>
-            public int Col
-            {
-                get { return col; }
-            }
+            public int Col => col;
 
             /// <summary>
             /// Coordenadas deste nó (linha e coluna)
             /// </summary>
-            public Graph2DCoords Coords
-            {
-                get { return new Graph2DCoords(row, col); }
-            }
+            public Graph2DCoords Coords => new Graph2DCoords(row, col);
 
             /// <summary>
             /// Valor associado a este nó. Usado para o cálculo de distância e na geração do menor caminho entre dois nós.
             /// </summary>
-            public int Value
-            {
-                get { return value; }
-            }
+            public int Value => value;
 
-            public override string ToString()
-            {
-                return (value == INFINITE ? "∞" : value.ToString()) + "[" + row + "," + col + "]";
-            }
+            public override string ToString() => (value == INFINITE ? "∞" : value.ToString()) + "[" + row + "," + col + "]";
 
             /// <summary>
             /// Vizinho à esquerda
             /// </summary>
-            public Node Left
-            {
-                get { return neighbors[LEFT]; }
-            }
+            public Node Left => neighbors[LEFT];
 
-            internal void SetLeft(Node value)
-            {
-                neighbors[LEFT] = value;
-            }
+            internal void SetLeft(Node value) => neighbors[LEFT] = value;
 
             /// <summary>
             /// Vizinho acima
             /// </summary>
-            public Node Up
-            {
-                get { return neighbors[UP]; }
-            }
+            public Node Up => neighbors[UP];
 
-            internal void SetUp(Node value)
-            {
-                neighbors[UP] = value;
-            }
+            internal void SetUp(Node value) => neighbors[UP] = value;
 
             /// <summary>
             /// Vizinho à direita
             /// </summary>
-            public Node Right
-            {
-                get { return neighbors[RIGHT]; }
-            }
+            public Node Right => neighbors[RIGHT];
 
-            internal void SetRight(Node value)
-            {
-                neighbors[RIGHT] = value;
-            }
+            internal void SetRight(Node value) => neighbors[RIGHT] = value;
 
             /// <summary>
             /// Vizinho abaixo
             /// </summary>
-            public Node Down
-            {
-                get { return neighbors[DOWN]; }
-            }
+            public Node Down => neighbors[DOWN];
 
-            internal void SetDown(Node value)
-            {
-                neighbors[DOWN] = value;
-            }
+            internal void SetDown(Node value) => neighbors[DOWN] = value;
 
             /// <summary>
             /// Atualiza o valor deste nó
@@ -239,10 +192,7 @@ namespace Bomberman
             }
         }
 
-        private int rowCount; // Número de linhas
-        private int colCount; // Número de colunas
-
-        private Node[,] nodes; // Nós
+        private readonly Node[,] nodes; // Nós
         private int dstRow; // Linha do nó de destino, usado na geração do menor caminho entre dois nós
         private int dstCol; // Coluna do nó de destino, usado na geração do menor caminho entre dois nós
         private bool computed; // Flag usada para indicar que todos os elementos do grafo tiveram seus valores atualizados com as distâncias até o nó de destino informado
@@ -255,8 +205,8 @@ namespace Bomberman
         /// <param name="fetch">Preenchimento</param>
         public Graph2D(int rowCount, int colCount, bool fetch = true)
         {
-            this.rowCount = rowCount;
-            this.colCount = colCount;
+            RowCount = rowCount;
+            this.ColCount = colCount;
 
             nodes = new Node[colCount, rowCount];
 
@@ -274,7 +224,7 @@ namespace Bomberman
         /// </summary>
         public int RowCount
         {
-            get { return rowCount; }
+            get;
         }
 
         /// <summary>
@@ -282,7 +232,7 @@ namespace Bomberman
         /// </summary>
         public int ColCount
         {
-            get { return colCount; }
+            get;
         }
 
         /// <summary>
@@ -291,20 +241,14 @@ namespace Bomberman
         /// <param name="row">Linha</param>
         /// <param name="col">Coluna</param>
         /// <returns>Nó na linha row e coluna col</returns>
-        public Node this[int row, int col]
-        {
-            get { return nodes[col, row]; }
-        }
+        public Node this[int row, int col] => nodes[col, row];
 
         /// <summary>
         /// Cria um novo nó nas coordenadas especificadas
         /// </summary>
         /// <param name="coords">Coordenadas do novo nó</param>
         /// <returns>Nó criado caso ele não existia, caso contrário retorna o nó existente associado as coordenadas especificadas</returns>
-        public Node Insert(Graph2DCoords coords)
-        {
-            return Insert(coords.Row, coords.Col);
-        }
+        public Node Insert(Graph2DCoords coords) => Insert(coords.Row, coords.Col);
 
         /// <summary>
         /// Cria um novo nó nas coordenadas especificadas
@@ -328,32 +272,28 @@ namespace Bomberman
             {
                 Node left = nodes[col - 1, row];
                 node.SetLeft(left); // Assim como devemos definir o vizinho deste nó
-                if (left != null)
-                    left.SetRight(node); // Devemos fazer o mesmo para o vizinho com relação a este nó, trata-se de uma ligação dupla
+                left?.SetRight(node); // Devemos fazer o mesmo para o vizinho com relação a este nó, trata-se de uma ligação dupla
             }
             // Vizinho acima
             if (row > 0)
             {
                 Node up = nodes[col, row - 1];
                 node.SetUp(up);
-                if (up != null)
-                    up.SetDown(node);
+                up?.SetDown(node);
             }
             // Vizinho direito
-            if (col < colCount - 1)
+            if (col < ColCount - 1)
             {
                 Node right = nodes[col + 1, row];
                 node.SetRight(right);
-                if (right != null)
-                    right.SetLeft(node);
+                right?.SetLeft(node);
             }
             // Vizinho abaixo
-            if (row < rowCount - 1)
+            if (row < RowCount - 1)
             {
                 Node down = nodes[col, row + 1];
                 node.SetDown(down);
-                if (down != null)
-                    down.SetUp(node);
+                down?.SetUp(node);
             }
 
             computed = false;
@@ -366,10 +306,7 @@ namespace Bomberman
         /// </summary>
         /// <param name="coords">Coordenadas do nó</param>
         /// <returns>Nó excluido caso ele exista, null caso contrário</returns>
-        public Node Delete(Graph2DCoords coords)
-        {
-            return Delete(coords.Row, coords.Col);
-        }
+        public Node Delete(Graph2DCoords coords) => Delete(coords.Row, coords.Col);
 
         /// <summary>
         /// Exclui um nó
@@ -384,7 +321,7 @@ namespace Bomberman
                 return null;
 
             nodes[col, row] = null; // Define como null a posição correspondente do nó
-            Node[] neighboors = new Node[4];
+            var neighboors = new Node[4];
 
             // Atualiza todos seus vizinhos, uma vez que o nó está sendo removido então deve-se remover a ligação entre ele e seus vizinhos também.
             // Lembrando que a ligação entre nós vizinhos é dupla, portanto deve-se fazer a atualização dos dois lados.
@@ -394,8 +331,7 @@ namespace Bomberman
                 node.SetLeft(null);
                 Node left = nodes[col - 1, row];
                 neighboors[LEFT] = left;
-                if (left != null)
-                    left.SetRight(null);
+                left?.SetRight(null);
             }
             // Acima
             if (row > 0)
@@ -403,26 +339,23 @@ namespace Bomberman
                 node.SetUp(null);
                 Node up = nodes[col, row - 1];
                 neighboors[UP] = up;
-                if (up != null)
-                    up.SetDown(null);
+                up?.SetDown(null);
             }
             // Direito
-            if (col < colCount - 1)
+            if (col < ColCount - 1)
             {
                 node.SetRight(null);
                 Node right = nodes[col + 1, row];
                 neighboors[RIGHT] = right;
-                if (right != null)
-                    right.SetLeft(null);
+                right?.SetLeft(null);
             }
             // Abaixo
-            if (row < rowCount - 1)
+            if (row < RowCount - 1)
             {
                 node.SetDown(null);
                 Node down = nodes[col, row + 1];
                 neighboors[DOWN] = down;
-                if (down != null)
-                    down.SetUp(null);
+                down?.SetUp(null);
             }
 
             computed = false;
@@ -435,8 +368,8 @@ namespace Bomberman
         /// </summary>
         public void Fetch()
         {
-            for (int row = 0; row < rowCount; row++)
-                for (int col = 0; col < colCount; col++)
+            for (int row = 0; row < RowCount; row++)
+                for (int col = 0; col < ColCount; col++)
                     Insert(row, col);
 
             computed = false;
@@ -447,8 +380,8 @@ namespace Bomberman
         /// </summary>
         public void Clear()
         {
-            for (int row = 0; row < rowCount; row++)
-                for (int col = 0; col < colCount; col++)
+            for (int row = 0; row < RowCount; row++)
+                for (int col = 0; col < ColCount; col++)
                     nodes[col, row] = null;
 
             computed = false;
@@ -463,10 +396,7 @@ namespace Bomberman
         /// Os nós que não forem atingíveis a partir do nó inicial ficarão com seus valores definidos como infinoto.
         /// </summary>
         /// <param name="dst">Coordenadas do nó inicial (nó de destino na geração do menor caminho)</param>
-        public void GenerateNodeValues(Graph2DCoords dst)
-        {
-            GenerateNodeValues(dst.Row, dst.Col);
-        }
+        public void GenerateNodeValues(Graph2DCoords dst) => GenerateNodeValues(dst.Row, dst.Col);
 
         /// <summary>
         /// Preenche os valores de todos os nós do grafo com as distâncias relativas a posição informada.
@@ -493,8 +423,8 @@ namespace Bomberman
             this.dstCol = dstCol;
 
             // Inicializa todos os nós do grafo com valor infinito
-            for (int row = 0; row < rowCount; row++)
-                for (int col = 0; col < colCount; col++)
+            for (int row = 0; row < RowCount; row++)
+                for (int col = 0; col < ColCount; col++)
                     if (nodes[col, row] != null)
                         nodes[col, row].value = INFINITE;
 
@@ -512,10 +442,7 @@ namespace Bomberman
         /// <param name="dst">Coordenadas do nó de destino</param>
         /// <param name="route">Lista contendo os nós do menor caminho, ordenada no sentido da origem para o destino</param>
         /// <returns>true se for encontrado o menor caminho, false caso contrário</returns>
-        public bool GetMinimalRoute(Graph2DCoords src, Graph2DCoords dst, List<Graph2DCoords> route)
-        {
-            return GetMinimalRoute(src.Row, src.Col, dst.Row, dst.Col, route);
-        }
+        public bool GetMinimalRoute(Graph2DCoords src, Graph2DCoords dst, List<Graph2DCoords> route) => GetMinimalRoute(src.Row, src.Col, dst.Row, dst.Col, route);
 
         /// <summary>
         /// Obtém o menor caminho entre dois nós
@@ -531,7 +458,7 @@ namespace Bomberman
             if (!computed || this.dstRow != dstRow || this.dstCol != dstCol)
                 GenerateNodeValues(dstRow, dstCol);
 
-            return GetMinimalRoute(srcCol, srcCol, route);
+            return GetMinimalRoute(srcRow, srcCol, route);
         }
 
         /// <summary>
@@ -540,10 +467,7 @@ namespace Bomberman
         /// <param name="coords">Coordenadas do nó de origem</param>
         /// <param name="route">Lista contendo os nós de menor caminho, ordenada no sentido da origem para o destino</param>
         /// <returns>true se for encontrado o menor caminho, false caso contrário ou se o nó de destino não foi informado previamente com a chamada ao método GenerateNodeValues</returns>
-        public bool GetMinimalRoute(Graph2DCoords coords, List<Graph2DCoords> route)
-        {
-            return GetMinimalRoute(coords.Row, coords.Col, route);
-        }
+        public bool GetMinimalRoute(Graph2DCoords coords, List<Graph2DCoords> route) => GetMinimalRoute(coords.Row, coords.Col, route);
 
         /// <summary>
         /// Obtém o menor caminho entre dois nós. Deve-se chamar o método GenerateNodeValues antes de chamar este método.
@@ -597,10 +521,7 @@ namespace Bomberman
         /// </summary>
         /// <param name="coords">Coordenadas do nó de origem</param>
         /// <returns>Próximo nó do menor caminho entre o nó de coordenadas coords até o nó de destino informado pela chamada ao método GenerateNodeValues, false caso GenerateNodeValues não tenha sido chamado desde a última modificação do grafo</returns>
-        public Node GetNextNode(Graph2DCoords coords)
-        {
-            return GetNextNode(coords.Row, coords.Col);
-        }
+        public Node GetNextNode(Graph2DCoords coords) => GetNextNode(coords.Row, coords.Col);
 
         /// <summary>
         /// Obtém o próximo nó a partir do nó de coordenadas coords no qual deve ser seguido para ficar mais próximo do nó de destino (previamente informado pela chamada ao método GenerateNodeValues)
@@ -642,25 +563,16 @@ namespace Bomberman
         /// <summary>
         /// Linha do nó de destino (previamente informado a chamada GenerateNodeValues), -1 caso GenerateNodeValues não foi chamada desde a última modificação do grafo
         /// </summary>
-        public int DstRow
-        {
-            get { return computed ? dstRow : -1; }
-        }
+        public int DstRow => computed ? dstRow : -1;
 
         /// <summary>
         /// Coluna do nó de destino (previamente informado a chamada GenerateNodeValues), -1 caso GenerateNodeValues não foi chamada desde a última modificação do grafo
         /// </summary>
-        public int DstCol
-        {
-            get { return computed ? dstCol : -1; }
-        }
+        public int DstCol => computed ? dstCol : -1;
 
         /// <summary>
         /// Coordenadas do nó de destino (previamente informado a chamada GenerateNodeValues), -1 caso GenerateNodeValues não foi chamada desde a última modificação do grafo
         /// </summary>
-        public Graph2DCoords DstCoords
-        {
-            get { return computed ? new Graph2DCoords(dstRow, dstCol) : null; }
-        }
+        public Graph2DCoords DstCoords => computed ? new Graph2DCoords(dstRow, dstCol) : null;
     }
 }

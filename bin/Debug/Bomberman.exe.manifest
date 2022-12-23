@@ -15,16 +15,16 @@
       </applicationRequestMinimum>
       <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
         <!--
-          Opções de Manifesto UAC
-          Se desejar mudar o nível de Controle de Conta de Usuário do Windows, substitua o 
-          nó requestedExecutionLevel por um dos seguintes.
+          Opções de Manifesto do UAC
+          Para alterar o nível de Controle de Conta de Usuário do Windows, substitua o nó
+          requestedExecutionLevel por um dos seguintes.
 
         <requestedExecutionLevel  level="asInvoker" uiAccess="false" />
         <requestedExecutionLevel  level="requireAdministrator" uiAccess="false" />
         <requestedExecutionLevel  level="highestAvailable" uiAccess="false" />
 
-         Se deseja usar a Virtualização de Arquivos e Registro para compatibilidade 
-         com versões anteriores, exclua o nó requestedExecutionLevel.
+         Para utilizar a Virtualização de Arquivos e Registro para manter a compatibilidade com versões anteriores,
+         exclua o nó requestedExecutionLevel.
     -->
         <requestedExecutionLevel level="asInvoker" uiAccess="false" />
       </requestedPrivileges>
@@ -67,38 +67,38 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Bomberman.exe" size="32379392">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Bomberman.exe" size="32378368">
       <assemblyIdentity name="Bomberman" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>4+7OqdCD01v0t+egxvhAw9SoydVNUfoMLgE9RgYBLQ0=</dsig:DigestValue>
+        <dsig:DigestValue>MnXPThdsSRXecja8it0uZb7CTwT1gFf192pyPh6WQGA=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Interop.ShockwaveFlashObjects.dll" size="23040">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Interop.ShockwaveFlashObjects.dll" size="22016">
       <assemblyIdentity name="Interop.ShockwaveFlashObjects" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>QdXHWMiGgG8KV+X0Iv6iY7Dqn4zVyB7umlAcM1Cbdk4=</dsig:DigestValue>
+        <dsig:DigestValue>lI8a/MnrsrrmD4M4rkmbAYriG5163KUs+orc7L2lWZg=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Interop.WMPLib.dll" size="331264">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Interop.WMPLib.dll" size="330752">
       <assemblyIdentity name="Interop.WMPLib" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>WSqoM3AlEhKGCOE9R241WIdPf1xYhHBSq0ZMed52LXY=</dsig:DigestValue>
+        <dsig:DigestValue>y+ZHPeLOTUqRolRdOp9S7oLGy/csTcmAULKKVZdbtOY=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

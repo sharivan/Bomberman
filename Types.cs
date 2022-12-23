@@ -38,13 +38,13 @@ namespace Bomberman
         [DllImport("winmm.dll")]
         private static extern int timeKillEvent(int id);
 
-        private Form mForm;
-        private Action mAction;
-        private int mDelay;
+        private readonly Form mForm;
+        private readonly Action mAction;
+        private readonly int mDelay;
         private int mTimerId;
-        private TimerEventDel mHandler;  // NOTE: declare at class scope so garbage collector doesn't release it!!!
+        private readonly TimerEventDel mHandler;  // NOTE: declare at class scope so garbage collector doesn't release it!!!
 
-        private object mutex;
+        private readonly object mutex;
         private bool running;
 
         public bool IsRunning
@@ -146,11 +146,6 @@ namespace Bomberman
         [DllImport("winmm.dll")]
         private static extern Int32 mciGetDeviceID(string lpszDevice);
 
-        private string fileName; // Nome do arquivo do audio
-        private string alias; // Alias do audio (usado nas chamadas mci)
-
-        private int deviceID; // Identificação do dispositivo
-        private bool loaded; // Flag que indica se foi ou não aberto o arquivo de audio e que esteja pronto para tocar
         private bool paused; // Flag que indica se a música foi pausada
 
         /// <summary>
@@ -158,8 +153,8 @@ namespace Bomberman
         /// </summary>
         public MciPlayer()
         {
-            deviceID = 0;
-            loaded = false;
+            DeviceID = 0;
+            Loaded = false;
             paused = false;
         }
 
@@ -168,17 +163,15 @@ namespace Bomberman
         /// </summary>
         /// <param name="fileName">Nome do arquivo de audio</param>
         /// <param name="alias">Alias do audio, usado nas chamadas mci posteriores</param>
-        public MciPlayer(string fileName, string alias) : this()
-        {
-            Load(fileName, alias);
-        }
+        public MciPlayer(string fileName, string alias) : this() => Load(fileName, alias);
 
         /// <summary>
         /// Nome do arquivo de audio
         /// </summary>
         public string FileName
         {
-            get { return fileName; }
+            get;
+            private set;
         }
 
         /// <summary>
@@ -186,7 +179,8 @@ namespace Bomberman
         /// </summary>
         public string Alias
         {
-            get { return alias; }
+            get;
+            private set;
         }
 
         /// <summary>
@@ -194,7 +188,8 @@ namespace Bomberman
         /// </summary>
         public int DeviceID
         {
-            get { return deviceID; }
+            get;
+            private set;
         }
 
         /// <summary>
@@ -202,7 +197,8 @@ namespace Bomberman
         /// </summary>
         public bool Loaded
         {
-            get { return loaded; }
+            get;
+            private set;
         }
 
         /// <summary>
@@ -210,7 +206,7 @@ namespace Bomberman
         /// </summary>
         public bool Paused
         {
-            get { return paused; }
+            get => paused;
             set
             {
                 if (value)
@@ -227,13 +223,13 @@ namespace Bomberman
         {
             get
             {
-                if (!loaded)
+                if (!Loaded)
                     return -1;
 
                 if (IsPlaying())
                 {
-                    string command = "status " + alias + " length";
-                    StringBuilder returnData = new StringBuilder(128);
+                    string command = "status " + Alias + " length";
+                    var returnData = new StringBuilder(128);
                     mciSendString(command, returnData, returnData.Capacity, IntPtr.Zero);
                     return int.Parse(returnData.ToString());
                 }
@@ -250,8 +246,8 @@ namespace Bomberman
         /// <returns>true se o audio foi carregado, false caso contrário</returns>
         public bool Load(string fileName, string alias)
         {
-            this.fileName = fileName;
-            this.alias = alias;
+            FileName = fileName;
+            this.Alias = alias;
 
             Stop();
             Close();
@@ -259,11 +255,11 @@ namespace Bomberman
             paused = false;
             string command = "open \"" + fileName + "\" alias " + alias;
             int ret = mciSendString(command, null, 0, IntPtr.Zero);
-            loaded = ret == 0;
-            if (loaded) // Se o audio foi carregado
-                deviceID = mciGetDeviceID(alias); // obtem a identificação do dispositivo relacionado ao audio carregado
+            Loaded = ret == 0;
+            if (Loaded) // Se o audio foi carregado
+                DeviceID = mciGetDeviceID(alias); // obtem a identificação do dispositivo relacionado ao audio carregado
 
-            return loaded;
+            return Loaded;
 
         }
 
@@ -273,10 +269,10 @@ namespace Bomberman
         /// <param name="loop">Indica se o audio será tocado em looping</param>
         public void Play(bool loop = false)
         {
-            if (loaded)
+            if (Loaded)
             {
                 paused = false;
-                string command = "play " + alias + " from 0" + (loop ? " repeat" : "");
+                string command = "play " + Alias + " from 0" + (loop ? " repeat" : "");
                 mciSendString(command, null, 0, IntPtr.Zero);
             }
         }
@@ -288,10 +284,10 @@ namespace Bomberman
         /// <param name="loop">Indica se o audio será tocado em looping</param>
         public void Play(IntPtr callback, bool loop = false)
         {
-            if (loaded)
+            if (Loaded)
             {
                 paused = false;
-                string command = "play " + alias + " from 0 notify" + (loop ? " repeat" : "");
+                string command = "play " + Alias + " from 0 notify" + (loop ? " repeat" : "");
                 mciSendString(command, null, 0, callback);
             }
         }
@@ -302,10 +298,10 @@ namespace Bomberman
         /// <returns>true se estiver tocando, false caso contrário</returns>
         public bool IsPlaying()
         {
-            if (loaded)
+            if (Loaded)
             {
-                string command = "status " + alias + " mode";
-                StringBuilder returnData = new StringBuilder(128);
+                string command = "status " + Alias + " mode";
+                var returnData = new StringBuilder(128);
                 mciSendString(command, returnData, returnData.Capacity, IntPtr.Zero);
                 if (returnData.Length == 7 && returnData.ToString().Substring(0, 7) == "playing")
                     return true;
@@ -319,10 +315,10 @@ namespace Bomberman
         /// </summary>
         public void Pause()
         {
-            if (loaded && !paused && IsPlaying())
+            if (Loaded && !paused && IsPlaying())
             {
                 paused = true;
-                string command = "pause " + alias;
+                string command = "pause " + Alias;
                 mciSendString(command, null, 0, IntPtr.Zero);
             }
         }
@@ -332,10 +328,10 @@ namespace Bomberman
         /// </summary>
         public void Resume()
         {
-            if (loaded && paused)
+            if (Loaded && paused)
             {
                 paused = false;
-                string command = "resume " + alias;
+                string command = "resume " + Alias;
                 mciSendString(command, null, 0, IntPtr.Zero);
             }
         }
@@ -348,28 +344,28 @@ namespace Bomberman
         {
             get
             {
-                if (!loaded)
+                if (!Loaded)
                     return -1;
 
-                string command = "status " + alias + " position";
-                StringBuilder returnData = new StringBuilder(128);
+                string command = "status " + Alias + " position";
+                var returnData = new StringBuilder(128);
                 mciSendString(command, returnData, returnData.Capacity, IntPtr.Zero);
                 return int.Parse(returnData.ToString());
             }
             set
             {
-                if (!loaded)
+                if (!Loaded)
                     return;
 
                 if (IsPlaying())
                 {
                     paused = false;
-                    string command = "play " + alias + " from " + value.ToString();
+                    string command = "play " + Alias + " from " + value.ToString();
                     mciSendString(command, null, 0, IntPtr.Zero);
                 }
                 else
                 {
-                    string command = "seek " + alias + " to " + value.ToString();
+                    string command = "seek " + Alias + " to " + value.ToString();
                     mciSendString(command, null, 0, IntPtr.Zero);
                 }
             }
@@ -382,12 +378,12 @@ namespace Bomberman
         /// <returns>true se o audio foi carregado e o volume é válido, false caso contrário</returns>
         public bool SetVolume(int volume)
         {
-            if (!loaded)
+            if (!Loaded)
                 return false;
 
             if (volume >= 0 && volume <= 1000)
             {
-                string command = "setaudio " + alias + " volume to " + volume.ToString();
+                string command = "setaudio " + Alias + " volume to " + volume.ToString();
                 mciSendString(command, null, 0, IntPtr.Zero);
                 return true;
             }
@@ -402,14 +398,14 @@ namespace Bomberman
         /// <returns>true se o audio foi carregado e o balanceamento é válido, false caso contrário</returns>
         public bool SetBalance(int balance)
         {
-            if (!loaded)
+            if (!Loaded)
                 return false;
 
             if (balance >= 0 && balance <= 1000)
             {
-                string command = "setaudio " + alias + " left volume to " + (1000 - balance).ToString();
+                string command = "setaudio " + Alias + " left volume to " + (1000 - balance).ToString();
                 mciSendString(command, null, 0, IntPtr.Zero);
-                command = "setaudio " + alias + " right volume to " + balance.ToString();
+                command = "setaudio " + Alias + " right volume to " + balance.ToString();
                 mciSendString(command, null, 0, IntPtr.Zero);
                 return true;
             }
@@ -422,10 +418,10 @@ namespace Bomberman
         /// </summary>
         public void Stop()
         {
-            if (loaded)
+            if (Loaded)
             {
                 paused = false;
-                string command = "stop " + alias;
+                string command = "stop " + Alias;
                 mciSendString(command, null, 0, IntPtr.Zero);
             }
         }
@@ -435,21 +431,18 @@ namespace Bomberman
         /// </summary>
         public void Close()
         {
-            if (!loaded)
+            if (!Loaded)
                 return;
 
-            string command = "close " + alias;
+            string command = "close " + Alias;
             mciSendString(command, null, 0, IntPtr.Zero);
-            loaded = false;
+            Loaded = false;
         }
 
         /// <summary>
         /// O mesmo que Close()
         /// </summary>
-        public void Dispose()
-        {
-            Close();
-        }
+        public void Dispose() => Close();
     }
 
     /// <summary>
@@ -457,24 +450,18 @@ namespace Bomberman
     /// </summary>
     public class SoundCollection : IDisposable
     {
-        private Dictionary<string, MciPlayer> sounds; // Tabela hash contendo os audios previamente carregados
+        private readonly Dictionary<string, MciPlayer> sounds; // Tabela hash contendo os audios previamente carregados
 
         /// <summary>
         /// Cria uma nova coleção de audios
         /// </summary>
-        public SoundCollection()
-        {
-            sounds = new Dictionary<string, MciPlayer>();
-        }
+        public SoundCollection() => sounds = new Dictionary<string, MciPlayer>();
 
         /// <summary>
         /// Adiciona um novo audio a coleção, carregando-o para que ele esteja pronto pra tocar
         /// </summary>
         /// <param name="soundName">Nome (alias) do audio</param>
-        public void Add(string soundName)
-        {
-            Add(soundName, soundName + ".wav");
-        }
+        public void Add(string soundName) => Add(soundName, soundName + ".wav");
 
         /// <summary>
         /// Adiciona um novo audio a coleção, carregando-o para que ele esteja pronto pra tocar
@@ -496,7 +483,7 @@ namespace Bomberman
                 File.WriteAllBytes(sound_path, buffer);
             }
 
-            MciPlayer player = new MciPlayer(sound_path, soundName);
+            var player = new MciPlayer(sound_path, soundName);
             sounds.Add(soundName, player);
         }
 
@@ -505,20 +492,14 @@ namespace Bomberman
         /// </summary>
         /// <param name="soundName">Nome (alias) do audio</param>
         /// <returns>true se o audio está na coleção, false caso contrário</returns>
-        public bool Contains(string soundName)
-        {
-            return sounds.ContainsKey(soundName);
-        }
+        public bool Contains(string soundName) => sounds.ContainsKey(soundName);
 
         /// <summary>
         /// Obtém o objeto MciPlayer correspondente ao nome do audio informado
         /// </summary>
         /// <param name="soundName">Nome (alias) do audio</param>
         /// <returns>O objeto MciPlayer associado ao nome do audio informado</returns>
-        public MciPlayer this[string soundName]
-        {
-            get { return sounds.ContainsKey(soundName) ? sounds[soundName] : null; }
-        }
+        public MciPlayer this[string soundName] => sounds.ContainsKey(soundName) ? sounds[soundName] : null;
 
         /// <summary>
         /// Toca um som desta coleção
@@ -575,10 +556,7 @@ namespace Bomberman
         /// <summary>
         /// O mesmo que Close()
         /// </summary>
-        public void Dispose()
-        {
-            Close();
-        }
+        public void Dispose() => Close();
     }
 
     /// <summary>
@@ -586,9 +564,6 @@ namespace Bomberman
     /// </summary>
     public class RankEntry
     {
-        private string name; // Nome do jogador
-        private int level; // Número do level ao qual ele estava quando morreu
-        private int score; // Pontuação atingida por ele antes de morrer
 
         /// <summary>
         /// Cria uma nova entrada no rank a partir dos dados do jogador
@@ -598,28 +573,22 @@ namespace Bomberman
         /// <param name="score">Pontuação atingida por ele antes de morrer</param>
         public RankEntry(string name, int level, int score)
         {
-            this.name = name;
-            this.level = level;
-            this.score = score;
+            Name = name;
+            Level = level;
+            this.Score = score;
         }
 
         /// <summary>
         /// Cria uma nova entrada do rank a partir de outra entrada
         /// </summary>
         /// <param name="entry">Entrada do rank usada como protótipo</param>
-        public RankEntry(RankEntry entry)
-        {
-            UpdateFrom(entry);
-        }
+        public RankEntry(RankEntry entry) => UpdateFrom(entry);
 
         /// <summary>
         /// Cria uma nova entrada do rank a partir de uma stream
         /// </summary>
         /// <param name="stream">Stream usada para ler os dados do rank</param>
-        public RankEntry(Stream stream)
-        {
-            ReadFromStream(stream);
-        }
+        public RankEntry(Stream stream) => ReadFromStream(stream);
 
         /// <summary>
         /// Atualiza a entrada do rank a partir de outra entrada
@@ -627,37 +596,28 @@ namespace Bomberman
         /// <param name="entry">Entrada do rank usada como fonte dos dados</param>
         public void UpdateFrom(RankEntry entry)
         {
-            name = entry.name;
-            level = entry.level;
-            score = entry.score;
+            Name = entry.Name;
+            Level = entry.Level;
+            Score = entry.Score;
         }
 
         /// <summary>
         /// Nome do jogador
         /// </summary>
-        public string Name
-        {
-            get { return name; }
-            set { name = value; }
-        }
+        public string Name { get;
+            set; }
 
         /// <summary>
         /// Level que o jogador atingiu antes de morrer
         /// </summary>
-        public int Level
-        {
-            get { return level; }
-            set { level = value; }
-        }
+        public int Level { get;
+            set; }
 
         /// <summary>
         /// Pontuação que o jogador atingiu antes de morrer
         /// </summary>
-        public int Score
-        {
-            get { return score; }
-            set { score = value; }
-        }
+        public int Score { get;
+            set; }
 
         /// <summary>
         /// Obtém os dados da entrada do rank a partir de um fluxo de dados.
@@ -666,10 +626,10 @@ namespace Bomberman
         /// <param name="stream"></param>
         public void ReadFromStream(Stream stream)
         {
-            BinaryReader reader = new BinaryReader(stream);
-            name = reader.ReadString();
-            level = reader.ReadInt32();
-            score = reader.ReadInt32();
+            var reader = new BinaryReader(stream);
+            Name = reader.ReadString();
+            Level = reader.ReadInt32();
+            Score = reader.ReadInt32();
         }
 
         /// <summary>
@@ -679,10 +639,10 @@ namespace Bomberman
         /// <param name="stream"></param>
         public void WriteToStream(Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
-            writer.Write(name);
-            writer.Write(level);
-            writer.Write(score);
+            var writer = new BinaryWriter(stream);
+            writer.Write(Name);
+            writer.Write(Level);
+            writer.Write(Score);
         }
     }
 
@@ -700,15 +660,6 @@ namespace Bomberman
         public static readonly Keys DEFAULT_KICK = Keys.K;
         public static readonly Keys DEFAULT_DETONATE = Keys.ControlKey;
         public static readonly Keys DEFAULT_PAUSE = Keys.Return;
-
-        private Keys left; // Movimentação para a esquerda
-        private Keys up; // Movimentação para cima
-        private Keys right; // Movimentação para a direita
-        private Keys down; // Movimentação para baixo
-        private Keys dropBomb; // Plantar bomba
-        private Keys kick; // Chutar
-        private Keys detonate; // Detonar bomba por controle remoto
-        private Keys pause; // Pausar o jogo
 
         /// <summary>
         /// Cria uma nova configuração de teclas usando as teclas padrões
@@ -731,33 +682,27 @@ namespace Bomberman
         /// <param name="pause">Tecla de pausar o jogo</param>
         public KeyBinding(Keys left, Keys up, Keys right, Keys down, Keys dropBomb, Keys kick, Keys detonate, Keys pause)
         {
-            this.left = left;
-            this.up = up;
-            this.right = right;
-            this.down = down;
-            this.dropBomb = dropBomb;
-            this.kick = kick;
-            this.detonate = detonate;
-            this.pause = pause;
+            Left = left;
+            Up = up;
+            Right = right;
+            Down = down;
+            DropBomb = dropBomb;
+            Kick = kick;
+            Detonate = detonate;
+            this.Pause = pause;
         }
 
         /// <summary>
         /// Cria uma nova configuração de teclas a partir de outra já existente
         /// </summary>
         /// <param name="keyBinding">Configuração de teclas usada como protótipo</param>
-        public KeyBinding(KeyBinding keyBinding)
-        {
-            UpdateFrom(keyBinding);
-        }
+        public KeyBinding(KeyBinding keyBinding) => UpdateFrom(keyBinding);
 
         /// <summary>
         /// Cria uma nova configuração de teclas a partir de um fluxo de dados
         /// </summary>
         /// <param name="stream">Fluxo de dados a ser lido</param>
-        public KeyBinding(Stream stream)
-        {
-            ReadFromStream(stream);
-        }
+        public KeyBinding(Stream stream) => ReadFromStream(stream);
 
         /// <summary>
         /// Atualiza a configuração de teclas a partir de outra já existente
@@ -765,87 +710,63 @@ namespace Bomberman
         /// <param name="keyBinding">Configuração de teclas usada como protótipo</param>
         public void UpdateFrom(KeyBinding keyBinding)
         {
-            left = keyBinding.left;
-            up = keyBinding.up;
-            right = keyBinding.right;
-            down = keyBinding.down;
-            dropBomb = keyBinding.dropBomb;
-            kick = keyBinding.kick;
-            detonate = keyBinding.detonate;
-            pause = keyBinding.pause;
+            Left = keyBinding.Left;
+            Up = keyBinding.Up;
+            Right = keyBinding.Right;
+            Down = keyBinding.Down;
+            DropBomb = keyBinding.DropBomb;
+            Kick = keyBinding.Kick;
+            Detonate = keyBinding.Detonate;
+            Pause = keyBinding.Pause;
         }
 
         /// <summary>
         /// Tecla de movimentação para esquerda
         /// </summary>
-        public Keys Left
-        {
-            get { return left; }
-            set { left = value; }
-        }
+        public Keys Left { get;
+            set; }
 
         /// <summary>
         /// Tecla de movimentação para cima
         /// </summary>
-        public Keys Up
-        {
-            get { return up; }
-            set { up = value; }
-        }
+        public Keys Up { get;
+            set; }
 
         /// <summary>
         /// Tecla de movimentação para direita
         /// </summary>
-        public Keys Right
-        {
-            get { return right; }
-            set { right = value; }
-        }
+        public Keys Right { get;
+            set; }
 
         /// <summary>
         /// Tecla de movimentação para baixo
         /// </summary>
-        public Keys Down
-        {
-            get { return down; }
-            set { down = value; }
-        }
+        public Keys Down { get;
+            set; }
 
         /// <summary>
         /// Tecla de plantar bomba
         /// </summary>
-        public Keys DropBomb
-        {
-            get { return dropBomb; }
-            set { dropBomb = value; }
-        }
+        public Keys DropBomb { get;
+            set; }
 
         /// <summary>
         /// Tecla de chutar
         /// </summary>
-        public Keys Kick
-        {
-            get { return kick; }
-            set { kick = value; }
-        }
+        public Keys Kick { get;
+            set; }
 
         /// <summary>
         /// Tecla de detonar bomba por controle remoto
         /// </summary>
-        public Keys Detonate
-        {
-            get { return detonate; }
-            set { detonate = value; }
-        }
+        public Keys Detonate { get;
+            set; }
 
         /// <summary>
         /// Tecla de pausar o jogo
         /// </summary>
-        public Keys Pause
-        {
-            get { return pause; }
-            set { pause = value; }
-        }
+        public Keys Pause { get;
+            set; }
 
         /// <summary>
         /// Obtém a configuração de teclas a partir de um fluxo de dados.
@@ -854,15 +775,15 @@ namespace Bomberman
         /// <param name="stream"></param>
         public void ReadFromStream(Stream stream)
         {
-            BinaryReader reader = new BinaryReader(stream);
-            left = (Keys)reader.ReadByte();
-            up = (Keys)reader.ReadByte();
-            right = (Keys)reader.ReadByte();
-            down = (Keys)reader.ReadByte();
-            dropBomb = (Keys)reader.ReadByte();
-            kick = (Keys)reader.ReadByte();
-            detonate = (Keys)reader.ReadByte();
-            pause = (Keys)reader.ReadByte();
+            var reader = new BinaryReader(stream);
+            Left = (Keys)reader.ReadByte();
+            Up = (Keys)reader.ReadByte();
+            Right = (Keys)reader.ReadByte();
+            Down = (Keys)reader.ReadByte();
+            DropBomb = (Keys)reader.ReadByte();
+            Kick = (Keys)reader.ReadByte();
+            Detonate = (Keys)reader.ReadByte();
+            Pause = (Keys)reader.ReadByte();
         }
 
         /// <summary>
@@ -872,15 +793,15 @@ namespace Bomberman
         /// <param name="stream"></param>
         public void WriteToStream(Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
-            writer.Write((byte)left);
-            writer.Write((byte)up);
-            writer.Write((byte)right);
-            writer.Write((byte)down);
-            writer.Write((byte)dropBomb);
-            writer.Write((byte)kick);
-            writer.Write((byte)detonate);
-            writer.Write((byte)pause);
+            var writer = new BinaryWriter(stream);
+            writer.Write((byte)Left);
+            writer.Write((byte)Up);
+            writer.Write((byte)Right);
+            writer.Write((byte)Down);
+            writer.Write((byte)DropBomb);
+            writer.Write((byte)Kick);
+            writer.Write((byte)Detonate);
+            writer.Write((byte)Pause);
         }
     }
 }

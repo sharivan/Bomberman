@@ -14,8 +14,8 @@ namespace Bomberman
 {
     public partial class FrmOptions : Form
     {
-        private Form caller;
-        private KeyBinding keyBinding;
+        private readonly Form caller;
+        private readonly KeyBinding keyBinding;
 
         private Bitmap saveNorm;
         private Bitmap saveFocus;
@@ -30,7 +30,7 @@ namespace Bomberman
         private int selectedKeyOption;
         private Label[] lblKeyLabel;
         private Label[] lblKey;
-        private SoundCollection sounds;
+        private readonly SoundCollection sounds;
 
         public FrmOptions(Form caller, KeyBinding keyBinding, SoundCollection sounds)
         {
@@ -167,6 +167,7 @@ namespace Bomberman
                 saveNorm.Dispose();
                 saveNorm = null;
             }
+
             if (saveFocus != null)
             {
                 saveFocus.Dispose();
@@ -178,6 +179,7 @@ namespace Bomberman
                 discardNorm.Dispose();
                 discardNorm = null;
             }
+
             if (discardFocus != null)
             {
                 discardFocus.Dispose();
@@ -189,14 +191,14 @@ namespace Bomberman
                 restoreDefaultsNorm.Dispose();
                 restoreDefaultsNorm = null;
             }
+
             if (restoreDefaultsFocus != null)
             {
                 restoreDefaultsFocus.Dispose();
                 restoreDefaultsFocus = null;
             }
 
-            if (caller != null)
-                caller.Show();
+            caller?.Show();
         }
 
         private void UpdateLabels()
@@ -213,16 +215,13 @@ namespace Bomberman
 
         private void SaveToDisk()
         {
-            using (FileStream stream = new FileStream(@"keys.bin", FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))
+            using (var stream = new FileStream(@"keys.bin", FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))
             {
                 keyBinding.WriteToStream(stream);
             }
         }
 
-        private void FrmOptions_Shown(object sender, EventArgs e)
-        {
-            UpdateLabels();
-        }
+        private void FrmOptions_Shown(object sender, EventArgs e) => UpdateLabels();
 
         private void EditKey(int optionIndex)
         {
@@ -234,8 +233,7 @@ namespace Bomberman
             lblKeyLabel[optionIndex].Font = new Font(lblKeyLabel[optionIndex].Font, FontStyle.Bold);
             lblKey[optionIndex].Text = "";
 
-            if (sounds != null)
-                sounds.Play("confirm");
+            sounds?.Play("confirm");
         }
 
         private void CancelEditKey()
@@ -249,8 +247,7 @@ namespace Bomberman
 
             selectedKeyOption = -1;
 
-            if (sounds != null)
-                sounds.Play("reset");
+            sounds?.Play("reset");
         }
 
         private void UpdateKey(Keys key)
@@ -265,49 +262,24 @@ namespace Bomberman
 
             selectedKeyOption = -1;
 
-            if (sounds != null)
-                sounds.Play("confirm");
+            sounds?.Play("confirm");
         }
 
-        private void lblLeftKey_DoubleClick(object sender, EventArgs e)
-        {
-            EditKey(0);
-        }
+        private void lblLeftKey_DoubleClick(object sender, EventArgs e) => EditKey(0);
 
-        private void lblUpKey_DoubleClick(object sender, EventArgs e)
-        {
-            EditKey(1);
-        }
+        private void lblUpKey_DoubleClick(object sender, EventArgs e) => EditKey(1);
 
-        private void lblRightKey_DoubleClick(object sender, EventArgs e)
-        {
-            EditKey(2);
-        }
+        private void lblRightKey_DoubleClick(object sender, EventArgs e) => EditKey(2);
 
-        private void lblDownKey_DoubleClick(object sender, EventArgs e)
-        {
-            EditKey(3);
-        }
+        private void lblDownKey_DoubleClick(object sender, EventArgs e) => EditKey(3);
 
-        private void lblDropBombKey_DoubleClick(object sender, EventArgs e)
-        {
-            EditKey(4);
-        }
+        private void lblDropBombKey_DoubleClick(object sender, EventArgs e) => EditKey(4);
 
-        private void lblKickKey_DoubleClick(object sender, EventArgs e)
-        {
-            EditKey(5);
-        }
+        private void lblKickKey_DoubleClick(object sender, EventArgs e) => EditKey(5);
 
-        private void lblDetonateKey_DoubleClick(object sender, EventArgs e)
-        {
-            EditKey(6);
-        }
+        private void lblDetonateKey_DoubleClick(object sender, EventArgs e) => EditKey(6);
 
-        private void lblPauseKey_DoubleClick(object sender, EventArgs e)
-        {
-            EditKey(7);
-        }
+        private void lblPauseKey_DoubleClick(object sender, EventArgs e) => EditKey(7);
 
         private void FrmOptions_KeyDown(object sender, KeyEventArgs e)
         {
@@ -321,19 +293,12 @@ namespace Bomberman
                 UpdateKey(key);
         }
 
-        private bool IsEditing(Label label)
-        {
-            if (selectedKeyOption == -1)
-                return false;
-
-            return label == lblKeyLabel[selectedKeyOption] || label == lblKey[selectedKeyOption];
-        }
+        private bool IsEditing(Label label) => selectedKeyOption != -1 && (label == lblKeyLabel[selectedKeyOption] || label == lblKey[selectedKeyOption]);
 
         private void Action_MouseEnter(object sender, EventArgs e)
         {
-            if (sounds != null)
-                sounds.Play("select");
-            Label label = (Label)sender;
+            sounds?.Play("select");
+            var label = (Label)sender;
             if (!IsEditing(label))
                 label.ForeColor = Color.YellowGreen;
             label.Font = new Font(label.Font, FontStyle.Bold);
@@ -341,7 +306,7 @@ namespace Bomberman
 
         private void Action_MouseLeave(object sender, EventArgs e)
         {
-            Label label = (Label)sender;
+            var label = (Label)sender;
             if (!IsEditing(label))
                 label.ForeColor = Color.White;
             label.Font = new Font(label.Font, FontStyle.Regular);
@@ -349,39 +314,29 @@ namespace Bomberman
 
         private void picsingle_MouseEnter(object sender, EventArgs e)
         {
-            if (sounds != null)
-                sounds.Play("select");
+            sounds?.Play("select");
             picSave.Image = saveFocus;
         }
 
-        private void picSave_MouseLeave(object sender, EventArgs e)
-        {
-            picSave.Image = saveNorm;
-        }
+        private void picSave_MouseLeave(object sender, EventArgs e) => picSave.Image = saveNorm;
 
         private void picDiscard_MouseEnter(object sender, EventArgs e)
         {
-            if (sounds != null)
-                sounds.Play("select");
+            sounds?.Play("select");
             picDiscard.Image = discardFocus;
         }
 
-        private void picDiscard_MouseLeave(object sender, EventArgs e)
-        {
-            picDiscard.Image = discardNorm;
-        }
+        private void picDiscard_MouseLeave(object sender, EventArgs e) => picDiscard.Image = discardNorm;
 
         private void picDiscard_Click(object sender, EventArgs e)
         {
-            if (sounds != null)
-                sounds.Play("confirm");
+            sounds?.Play("confirm");
             Close();
         }
 
         private void picSave_Click(object sender, EventArgs e)
         {
-            if (sounds != null)
-                sounds.Play("confirm");
+            sounds?.Play("confirm");
             keyBinding.UpdateFrom(tempKeyBinding);
             SaveToDisk();
             Close();
@@ -389,22 +344,17 @@ namespace Bomberman
 
         private void picRestoreDefaults_Click(object sender, EventArgs e)
         {
-            if (sounds != null)
-                sounds.Play("reset");
+            sounds?.Play("reset");
             tempKeyBinding = new KeyBinding();
             UpdateLabels();
         }
 
         private void picRestoreDefaults_MouseEnter(object sender, EventArgs e)
         {
-            if (sounds != null)
-                sounds.Play("select");
+            sounds?.Play("select");
             picRestoreDefaults.Image = restoreDefaultsFocus;
         }
 
-        private void picRestoreDefaults_MouseLeave(object sender, EventArgs e)
-        {
-            picRestoreDefaults.Image = restoreDefaultsNorm;
-        }
+        private void picRestoreDefaults_MouseLeave(object sender, EventArgs e) => picRestoreDefaults.Image = restoreDefaultsNorm;
     }
 }

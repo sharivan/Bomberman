@@ -14,9 +14,9 @@ namespace Bomberman
 {
     public partial class FrmRanking : Form
     {
-        private Form caller;
-        private List<RankEntry> entries;
-        private SoundCollection sounds;
+        private readonly Form caller;
+        private readonly List<RankEntry> entries;
+        private readonly SoundCollection sounds;
         private int futureEntryIndex;
         private int newLevel;
         private int newScore;
@@ -53,16 +53,10 @@ namespace Bomberman
                     return i;
             }
 
-            if (entries.Count < 9)
-                return entries.Count;
-
-            return -1;
+            return entries.Count < 9 ? entries.Count : -1;
         }
 
-        public void AddRank(int index, string name, int level, int score)
-        {
-            AddRank(index, new RankEntry(name, level, score));
-        }
+        public void AddRank(int index, string name, int level, int score) => AddRank(index, new RankEntry(name, level, score));
 
         public void AddRank(int index, RankEntry entry)
         {
@@ -96,7 +90,7 @@ namespace Bomberman
 
         private void SaveToDisk()
         {
-            using (FileStream stream = new FileStream(@"rank.bin", FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))
+            using (var stream = new FileStream(@"rank.bin", FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))
             {
                 stream.WriteByte((byte)entries.Count);
                 for (int i = 0; i < entries.Count; i++)
@@ -158,14 +152,14 @@ namespace Bomberman
                 backNorm.Dispose();
                 backNorm = null;
             }
+
             if (backFocus != null)
             {
                 backFocus.Dispose();
                 backFocus = null;
             }
 
-            if (caller != null)
-                caller.Show();
+            caller?.Show();
         }
 
         private void FrmRanking_Shown(object sender, EventArgs e)
@@ -208,21 +202,16 @@ namespace Bomberman
 
         private void picBack_Click(object sender, EventArgs e)
         {
-            if (sounds != null)
-                sounds.Play("confirm");
+            sounds?.Play("confirm");
             Close();
         }
 
         private void picBack_MouseEnter(object sender, EventArgs e)
         {
-            if (sounds != null)
-                sounds.Play("select");
+            sounds?.Play("select");
             picBack.Image = backFocus;
         }
 
-        private void picBack_MouseLeave(object sender, EventArgs e)
-        {
-            picBack.Image = backNorm;
-        }
+        private void picBack_MouseLeave(object sender, EventArgs e) => picBack.Image = backNorm;
     }
 }
