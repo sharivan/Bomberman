@@ -3,7 +3,9 @@ Fan game based on the original Bomberman game from NES and SNES consoles.
 
 **Requirements:**
 
-- .NET Framework version 4.6.1 or higher.
+- .NET Framework version 4.8.1 or higher.
+
+You can download the lasted release accessing https://github.com/sharivan/Bomberman/releases
 
 **Building from the sources:**
 
