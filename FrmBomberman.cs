@@ -3622,15 +3622,14 @@ namespace Bomberman
         public PowerUpType RandomPowerUp()
         {
             float rnd = RandomFloat() * 100;
-            float sum = POWERUP_ODD_DISTRIBUTION[0];
+            float sum = POWERUP_ODD_DISTRIBUTION[currentLevel % STAGE_COUNT, 0];
 
             if (rnd < sum)
                 return PowerUpType.BOMB_PASS;
 
             for (int i = 1; i < POWERUP_ODD_DISTRIBUTION.Length; i++)
             {
-                sum += POWERUP_ODD_DISTRIBUTION[i];
-
+                sum += POWERUP_ODD_DISTRIBUTION[currentLevel % STAGE_COUNT, i];
                 if (rnd < sum)
                     return (PowerUpType) i;
             }

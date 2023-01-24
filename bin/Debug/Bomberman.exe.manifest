@@ -74,7 +74,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>MnXPThdsSRXecja8it0uZb7CTwT1gFf192pyPh6WQGA=</dsig:DigestValue>
+        <dsig:DigestValue>LzRcvh4+HQl5JOGD1DXKaXoEQmO+5IeAKnW2WrT0vEw=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -98,17 +98,17 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>y+ZHPeLOTUqRolRdOp9S7oLGy/csTcmAULKKVZdbtOY=</dsig:DigestValue>
+        <dsig:DigestValue>flWtlTEFiVx/iNePKdzorBfS+IElaX+9tfaleyjOv84=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
-  <file name="Bomberman.exe.config" size="167">
+  <file name="Bomberman.exe.config" size="169">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>cm6x6fZ+09LS+qX1fNONKtui3fRFsn0UMpem5D/dNvs=</dsig:DigestValue>
+      <dsig:DigestValue>pXCaTkSdhdZK/ksNiEXvrqy/hr+wlOgzviND6k0ygHs=</dsig:DigestValue>
     </hash>
   </file>
   <file name="favicon.ico" size="370070">

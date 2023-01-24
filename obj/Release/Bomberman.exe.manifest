@@ -74,7 +74,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>toS5Nrvy4jxxHWZSEUCKKGTHrgkeOXD3m0BSAkjfrGc=</dsig:DigestValue>
+        <dsig:DigestValue>NI82rRK4hN8G+dlsj6E4axYE3+U3W1R9CcBJuRQAL6E=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -102,13 +102,13 @@
       </hash>
     </dependentAssembly>
   </dependency>
-  <file name="Bomberman.exe.config" size="167">
+  <file name="Bomberman.exe.config" size="169">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>cm6x6fZ+09LS+qX1fNONKtui3fRFsn0UMpem5D/dNvs=</dsig:DigestValue>
+      <dsig:DigestValue>pXCaTkSdhdZK/ksNiEXvrqy/hr+wlOgzviND6k0ygHs=</dsig:DigestValue>
     </hash>
   </file>
   <file name="favicon.ico" size="370070">

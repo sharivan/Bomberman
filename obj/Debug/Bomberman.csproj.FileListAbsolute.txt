@@ -76,3 +76,4 @@ C:\Users\miste\Documents\Projects\c#\vc#\src\Bomberman\obj\Debug\Bomberman.exe.m
 C:\Users\miste\Documents\Projects\c#\vc#\src\Bomberman\obj\Debug\Bomberman.application
 C:\Users\miste\Documents\Projects\c#\vc#\src\Bomberman\obj\Debug\Bomberman.exe
 C:\Users\miste\Documents\Projects\c#\vc#\src\Bomberman\obj\Debug\Bomberman.pdb
+C:\Users\miste\Documents\Projects\c#\vc#\src\Bomberman\obj\Debug\Bomberman.csproj.SuggestedBindingRedirects.cache

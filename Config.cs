@@ -4,7 +4,7 @@
  * Contém todas as constantes usadas pelo engine para definir seu comportamento.
  * Qualquer alteração em uma dessas constantes irá alterar o comportamento do engine.
  * 
- */ 
+ */
 
 using System;
 using System.Collections.Generic;
@@ -47,7 +47,7 @@ namespace Bomberman
         public static readonly float MAX_TIME = 6 * 60; // 6 minutos. Tempo máximo que o bomberman poderá ter para completar o level.
         public static readonly int MAX_LIVES = 9; // Quantidade máxima de vidas que o bomberman poderá ter
         public static readonly float BOMB_SPEED = 256; // Velocidade da boma após ser chutada
-        
+
         // Bomb
         public static readonly float BOMB_TIME = 2.5F; // Tempo de detonação da bomba após ser plantada pelo bomberman em segundos
 
@@ -82,20 +82,106 @@ namespace Bomberman
         public static readonly float GENERATE_GRAPH_NODE_VALUES_THINK_TIME = 2; // Intervalo de tempo (em segundos) usado para a geração dos valores dos nós do grafo do jogo para a computação do menor caminho a ser seguido pelos cactus até o bomberman
         public static readonly int MAX_SOFT_BLOCK_POWERUPS_PER_LEVEL = 4; // Número máximo de powerups obtidos atráves da quebra de soft blocks
         public static readonly int POWER_UP_COUNT = 12; // Quanridade de powerups disponíveis no jogo
-        public static readonly float[] POWERUP_ODD_DISTRIBUTION = // Distribuição de probabilidade dos powerups do jogo
+        public static readonly float[,] POWERUP_ODD_DISTRIBUTION = // Distribuição de probabilidade dos powerups do jogo (por level)
             {
-                15, // Bomb pass
-                10, // Bomb up
-                15, // Clock
-                10, // Fire up
-                2.5F, // Heart
-                15, // Kick
-                2.5F, // Life
-                2.5F, // Red bomb
-                2.5F, // Remote control
-                10, // Roller
-                5, // Soft block pass
-                10, // Vest
+                { // Level 1
+                    15, // Bomb pass
+                    10, // Bomb up
+                    15, // Clock
+                    10, // Fire up
+                    2.5F, // Heart
+                    15, // Kick
+                    2.5F, // Life
+                    2.5F, // Red bomb
+                    2.5F, // Remote control
+                    10, // Roller
+                    5, // Soft block pass
+                    10, // Vest
+                },
+                { // Levle 2
+                    10, // Bomb pass
+                    10, // Bomb up
+                    20, // Clock
+                    10, // Fire up
+                    2.5F, // Heart
+                    15, // Kick
+                    2.5F, // Life
+                    2.5F, // Red bomb
+                    2.5F, // Remote control
+                    15, // Roller
+                    0, // Soft block pass
+                    10, // Vest
+                },
+                { // Level 3
+                    15, // Bomb pass
+                    20, // Bomb up
+                    5, // Clock
+                    20, // Fire up
+                    2.5F, // Heart
+                    15, // Kick
+                    2.5F, // Life
+                    2.5F, // Red bomb
+                    2.5F, // Remote control
+                    10, // Roller
+                    5, // Soft block pass
+                    0, // Vest
+                },
+                { // Level 4
+                    20, // Bomb pass
+                    10, // Bomb up
+                    15, // Clock
+                    10, // Fire up
+                    2.5F, // Heart
+                    15, // Kick
+                    2.5F, // Life
+                    2.5F, // Red bomb
+                    2.5F, // Remote control
+                    10, // Roller
+                    5, // Soft block pass
+                    5, // Vest
+                },
+                { // Level 5
+                    5, // Bomb pass
+                    15, // Bomb up
+                    5, // Clock
+                    15, // Fire up
+                    2.5F, // Heart
+                    15, // Kick
+                    2.5F, // Life
+                    2.5F, // Red bomb
+                    2.5F, // Remote control
+                    15, // Roller
+                    5, // Soft block pass
+                    15, // Vest
+                },
+                { // Level 6
+                    0, // Bomb pass
+                    10, // Bomb up
+                    15, // Clock
+                    10, // Fire up
+                    2.5F, // Heart
+                    15, // Kick
+                    2.5F, // Life
+                    5, // Red bomb
+                    5, // Remote control
+                    15, // Roller
+                    15, // Soft block pass
+                    5, // Vest
+                },
+                { // Level 7
+                    0, // Bomb pass
+                    10, // Bomb up
+                    20, // Clock
+                    10, // Fire up
+                    2.5F, // Heart
+                    10, // Kick
+                    2.5F, // Life
+                    10, // Red bomb
+                    10, // Remote control
+                    10, // Roller
+                    10, // Soft block pass
+                    5, // Vest
+                }
             };
         public static readonly int[,] MAX_POWERUP_PER_LEVEL = // Número máximo de powerups de cada tipo por level
             {
@@ -222,7 +308,7 @@ namespace Bomberman
         public static readonly Box2D DEFAULT_GAME_AREA_BOX = new Box2D(DEFAULT_GAME_AREA_RECT);
         public static readonly Vector2D PRESS_ENTER_COORDS = new Vector2D(124, 323);
         public static readonly float PRESS_ENTER_FLASH_TIME = 0.5F;
-        public static readonly float SIZE_RATIO = (float)COL_COUNT / (float)ROW_COUNT; // Proporção entre o número de colunas e o número de linhas do jogo. Usado para o cálculo da escala do jogo quando a tela for redimensionada.
+        public static readonly float SIZE_RATIO = (float) COL_COUNT / (float) ROW_COUNT; // Proporção entre o número de colunas e o número de linhas do jogo. Usado para o cálculo da escala do jogo quando a tela for redimensionada.
         public static readonly float GAME_OVER_PANEL_SHOW_DELAY = 5;
 
         // Scoring
