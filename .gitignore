@@ -259,6 +259,10 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+
+/bin/
+/obj/
+
 /obj/Debug/Bomberman.application
 /obj/Debug/Bomberman.csproj.AssemblyReference.cache
 /obj/Debug/Bomberman.csproj.CoreCompileInputs.cache
@@ -281,3 +285,7 @@ __pycache__/
 /bin/Debug/Interop.ShockwaveFlashObjects.dll
 /bin/Debug/Interop.WMPLib.dll
 /bin/Release/rank.bin
+/bin/Debug/AxInterop.ShockwaveFlashObjects.dll
+/bin/Debug/AxInterop.WMPLib.dll
+/obj/Debug/AxInterop.ShockwaveFlashObjects.dll
+/obj/Debug/AxInterop.WMPLib.dll
