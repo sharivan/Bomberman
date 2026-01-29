@@ -60,7 +60,7 @@ There is 12 types of power ups in the game, items that grants special skills or 
 
 **References:**
 
-- Most of graphics of this game was based on [this tutorial](https://gamedevelopment.tutsplus.com/tutorials/create-a-bomberman-inspired-game-in-construct-2-the-player-and-the-level--gamedev-8744) (or [this video](https://www.youtube.com/watch?v=aopm1jqvXMM)) developed at Construct 2, but only graphics, the game logic was totaly developed from scratch in C#.
-- You can also find the sprites at http://enva.to/BombingChapSprites
+- Most of graphics of this game was based on [this tutorial](https://gamedevelopment.tutsplus.com/tutorials/create-a-bomberman-inspired-game-in-construct-2-the-player-and-the-level--gamedev-8744) (or [this video](https://www.youtube.com/watch?v=aopm1jqvXMM)) developed by [Kyatric](https://twitter.com/Kyatric) using Construct 2, but only the graphics. The game logic was totaly developed from scratch in C#.
+- You can also download the original sprites [here](https://enva.to/BombingChapSprites).
 - FX musics are from original ones. Visit https://www.spriters-resource.com for find then searching by "bomberman".
 - Soundtrack musics are no copyright songs.
